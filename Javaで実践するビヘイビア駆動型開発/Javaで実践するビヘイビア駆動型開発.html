@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Javaで実践するビヘイビア駆動型開発</title>
+<style>
+  body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; color: #0d2b2b; margin: 0; padding: 20px; background: #f0f7f7; }
+  * { box-sizing: border-box; }
+
+  .hero {
+    text-align: center; padding: 48px 24px;
+    background: linear-gradient(135deg, #0d6e6e 0%, #1a8a8a 60%, #2aa8a8 100%);
+    color: #fff; border-radius: 8px; margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(13,110,110,0.3); position: relative; overflow: hidden;
+  }
+  .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:240px; height:240px; border-radius:50%; background:rgba(255,255,255,0.06); }
+  .hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.04); }
+  .hero h1 { margin:0 0 10px; font-size:32px; font-weight:700; color:#fff; position:relative; z-index:1; }
+  .hero h2 { margin:0; font-size:18px; font-weight:400; color:rgba(255,255,255,0.85); position:relative; z-index:1; }
+
+  .catchcopy { text-align:center; margin-bottom:50px; padding:20px; }
+  .catchcopy p { font-size:22px; font-weight:700; color:#0d6e6e; margin:0; line-height:1.7; }
+
+  .section { margin-bottom:50px; }
+  .section-title { font-size:22px; color:#0d2b2b; border-left:6px solid #0d6e6e; padding-left:15px; margin-bottom:30px; font-weight:700; }
+
+  .overview-card { background:#fff; border:1px solid #b2d8d8; border-radius:8px; padding:30px; box-shadow:0 2px 8px rgba(13,110,110,0.07); }
+  .overview-card p { font-size:16px; line-height:1.8; color:#2a4a4a; margin:0; }
+
+  .feature-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .feature-card { flex:1; min-width:260px; background:#fff; border:1px solid #b2d8d8; border-top:5px solid #0d6e6e; border-radius:4px 4px 8px 8px; padding:25px; box-shadow:0 2px 5px rgba(13,110,110,0.07); }
+  .feature-card .icon { font-size:28px; margin-bottom:12px; display:block; }
+  .feature-card h4 { margin:0 0 10px; color:#0d2b2b; font-size:17px; }
+  .feature-card p { font-size:14px; line-height:1.7; color:#2a4a4a; margin:0; }
+
+  .goal-card { background:#fff; border:1px solid #b2d8d8; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(13,110,110,0.07); }
+  .goal-card ul { font-size:15px; line-height:1.8; color:#2a4a4a; padding-left:20px; margin:0; }
+  .goal-card ul li { margin-bottom:8px; }
+
+  .recommend-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .recommend-card { flex:1; min-width:220px; background:#fff; border:1px solid #b2d8d8; border-radius:8px; padding:22px; box-shadow:0 2px 4px rgba(13,110,110,0.05); }
+  .recommend-card p { font-size:15px; font-weight:700; color:#0d2b2b; line-height:1.6; margin:0; }
+  .recommend-card p span { color:#0d6e6e; }
+
+  .prereq-card { background:#fff; border:1px solid #b2d8d8; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(13,110,110,0.07); }
+  .prereq-card ul { font-size:15px; line-height:1.8; color:#2a4a4a; padding-left:20px; margin:0; }
+  .prereq-card ul li { margin-bottom:6px; }
+  .rec-tag { display:inline-block; font-size:10px; padding:1px 8px; border-radius:20px; background:#FAEEDA; color:#854F0B; font-weight:500; margin-left:6px; vertical-align:middle; }
+
+  .table-wrap { overflow-x:auto; }
+
+  table.curriculum { width:100%; border-collapse:collapse; min-width:700px; line-height:1.6; box-shadow:0 2px 5px rgba(13,110,110,0.08); }
+  table.curriculum thead tr { color:#fff; background:#0d6e6e; }
+  table.curriculum thead th { padding:14px 12px; font-weight:700; text-align:left; border:1px solid #0a5050; }
+  table.curriculum thead th:first-child { text-align:center; width:8%; }
+  table.curriculum thead th:nth-child(2) { width:30%; }
+  table.curriculum tbody td { padding:12px; border:1px solid #d4eaea; color:#0d2b2b; vertical-align:top; font-size:14px; line-height:1.7; }
+  .day-cell { font-weight:700; text-align:center; white-space:nowrap; }
+  .d1 { background:#d4eaea; color:#0a5050; }
+  .d2 { background:#b2d8d8; color:#0a5050; }
+  .ch-odd  { font-weight:700; background:#e8f5f5; color:#0a5050; }
+  .ch-even { font-weight:700; background:#fff; color:#0a5050; }
+  .co-odd  { background:#f2fafa; }
+  .co-even { background:#fff; }
+
+  table.env-table { width:100%; border-collapse:collapse; min-width:400px; border:1px solid #0d6e6e; line-height:1.5; }
+  table.env-table thead tr { background:#0d6e6e; color:#fff; }
+  table.env-table thead th { padding:10px; border:1px solid #0a5050; text-align:left; font-weight:700; font-size:14px; }
+  table.env-table tbody td { padding:8px 10px; border:1px solid #d4eaea; font-size:13px; color:#0d2b2b; }
+  .ev-label { font-weight:700; background:#d4eaea; color:#0a5050; }
+  .ev-odd  { background:#e8f5f5; }
+  .ev-even { background:#fff; }
+
+  .note { font-size:13px; color:#5a8a8a; margin-top:10px; padding-left:4px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Javaで実践するビヘイビア駆動型開発</h1>
+  <h2>シナリオで実現する品質向上</h2>
+</div>
+
+<div class="catchcopy">
+  <p>ステークホルダーと開発者が同じ言語で品質をつくる。<br>JavaとCucumberで実現するBDD。</p>
+</div>
+
+<div style="font-family:'Segoe UI',sans-serif; color:#0d2b2b;">
+
+  <!-- 研修概要 -->
+  <div class="section">
+    <h2 class="section-title">研修概要</h2>
+    <div class="overview-card">
+      <p>本研修では、Javaを用いたビヘイビア駆動型開発（BDD）の基本概念から実践までを体系的に学びます。GherkinによるシナリオをCucumberで自動テストに変換し、ドメイン層からプレゼンテーション層まで全レイヤーにわたるテスト実装をハンズオン形式で習得します。</p>
+    </div>
+  </div>
+
+  <!-- 本研修の特徴 -->
+  <div class="section">
+    <h2 class="section-title">本研修の特徴</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="icon">📝</span>
+        <h4>自然言語で書く、Gherkinシナリオ</h4>
+        <p>Given・When・Thenの形式で誰もが読めるシナリオを記述。仕様とテストを一致させる開発スタイルを体験します。</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">⚙️</span>
+        <h4>Cucumberで自動テストに変換</h4>
+        <p>GherkinシナリオをCucumberが自動テストに変換。Java・Spring Bootとシームレスに統合し、シナリオ駆動の開発を実践します。</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">🏗</span>
+        <h4>4層アーキテクチャを一気通貫でテスト</h4>
+        <p>ドメイン層からE2Eまで、Gherkin×Cucumberを軸にした一貫したテスト戦略を習得します。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 到達目標 -->
+  <div class="section">
+    <h2 class="section-title">到達目標（受講後に身につくスキル）</h2>
+    <div class="goal-card">
+      <ul>
+        <li>Gherkinでシナリオを記述し、Cucumberで自動テストとして実行できる</li>
+        <li>ドメイン層からE2Eまで一貫したBDDテストを実装できる</li>
+        <li>DDD×BDDを組み合わせた設計・実装ができる</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- こんな企業にお勧め -->
+  <div class="section">
+    <h2 class="section-title">こんな企業にお勧めします</h2>
+    <div class="recommend-grid">
+      <div class="recommend-card"><p><span>品質向上をチーム全体の取り組み</span>にしたい</p></div>
+      <div class="recommend-card"><p>仕様書とテストが別管理になっており、<span>メンテナンスコストが高い</span></p></div>
+      <div class="recommend-card"><p>アジャイル・スクラム開発を実践しており、<span>テスト文化を強化</span>したい</p></div>
+      <div class="recommend-card"><p><span>非技術者も交えたレビュープロセス</span>を整備したい</p></div>
+    </div>
+  </div>
+
+  <!-- カリキュラム詳細 -->
+  <div class="section">
+    <h2 class="section-title">カリキュラム詳細（全2日間）</h2>
+    <div class="table-wrap">
+      <table class="curriculum">
+        <thead>
+          <tr>
+            <th style="text-align:center;">日程</th>
+            <th>章・学習テーマ</th>
+            <th>学習内容・習得スキル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="day-cell d1" rowspan="4">1日目</td>
+            <td class="ch-odd">第1章：BDDとハンズオンの概要</td>
+            <td class="co-odd">BDDの歴史・基本原則・TDDとの違いを理解する。Gherkin・Cucumber・Playwrightの概要と役割を把握し、ハンズオンのアーキテクチャとテストの基本的な流れを理解する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第2章：Gherkin</td>
+            <td class="co-even">Feature・Scenario・Scenario Outline・Background・Ruleなどのセクションキーワード、Given・When・Thenのステップキーワード、タグ・コメント・テストデータの記述方法を習得する。シナリオ作成を通じてBDDの記述スタイルを実践する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第3章：ドメイン層の実装とテスト</td>
+            <td class="co-odd">値オブジェクト・エンティティの設計原則（不変性・等価性・自己検証・ビジネスロジックのカプセル化）を学ぶ。GherkinシナリオとCucumberを用いてテストを実装し、共通ステップ・ScenarioContextを活用した再利用可能なテスト構成を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第4章：インフラストラクチャ層の実装とテスト</td>
+            <td class="co-even">MyBatis Mapperインターフェイスのテスト・フック（前処理・後処理）・Adapter・Repositoryパターンの実装とテストを学ぶ。参照系・更新系メソッドの演習を通じて、データアクセス層の一貫したBDDテスト手法を習得する。</td>
+          </tr>
+          <tr>
+            <td class="day-cell d2" rowspan="2">2日目</td>
+            <td class="ch-odd">第5章：アプリケーション層の実装とテスト</td>
+            <td class="co-odd">ユースケースを実現するサービス（商品登録・検索・変更）の実装と結合テストを行う。NotFoundException・ExistsExceptionの共通ステップ活用やトランザクション管理のためのフック利用など、実務的なテスト戦略を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第6章：プレゼンテーション層の実装とテスト</td>
+            <td class="co-even">PlaywrightによるE2Eテスト（商品登録・検索・変更）とMockMvcを使ったAdviceテストを実践する。正常系・異常系シナリオの実装・テスト可視化機能（PDF生成・動画記録）まで習得する。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">※ 各章末にプログラム実装演習を実施します。</p>
+  </div>
+
+  <!-- 前提知識 -->
+  <div class="section">
+    <h2 class="section-title">受講にあたっての前提知識</h2>
+    <div class="prereq-card">
+      <ul>
+        <li>Java言語の基礎知識（変数・クラス・インターフェイス・メソッド）</li>
+        <li>Spring Boot・MyBatis3の基礎知識</li>
+        <li>Webアプリケーション・Web APIの基礎知識</li>
+        <li>ユニットテスト・ソフトウェアテスト技法の基礎知識</li>
+        <li>ドメイン駆動設計の基礎知識 <span class="rec-tag">推奨</span>　※研修内で解説あり</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 受講環境 -->
+  <div class="section">
+    <h2 class="section-title">必要な受講環境</h2>
+    <div class="table-wrap">
+      <table class="env-table">
+        <thead>
+          <tr><th style="width:20%;">区分</th><th style="width:38%;">環境 / ツール</th><th>役割・用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="ev-label">ホストOS</td><td class="ev-odd">Windows 11</td><td class="ev-odd">研修用PCの基本環境</td></tr>
+          <tr><td class="ev-label">IDE</td><td class="ev-even">IntelliJ IDEA</td><td class="ev-even">コード編集・デバッグ・テスト実行</td></tr>
+          <tr><td class="ev-label">SDK</td><td class="ev-odd">JDK 21</td><td class="ev-odd">Javaアプリケーション開発・実行</td></tr>
+          <tr><td class="ev-label">ビルドツール</td><td class="ev-even">Gradle</td><td class="ev-even">依存関係管理・ビルド・Playwrightインストール</td></tr>
+          <tr><td class="ev-label">フレームワーク</td><td class="ev-odd">Spring Boot</td><td class="ev-odd">Webアプリケーション・REST API開発基盤</td></tr>
+          <tr><td class="ev-label">O/Rマッパー</td><td class="ev-even">MyBatis 3</td><td class="ev-even">データベースアクセス・SQLマッピング</td></tr>
+          <tr><td class="ev-label">BDDフレームワーク</td><td class="ev-odd">Cucumber 7.18.1</td><td class="ev-odd">GherkinシナリオのBDDテスト自動化</td></tr>
+          <tr><td class="ev-label">E2Eテスト</td><td class="ev-even">Microsoft Playwright 1.48.0</td><td class="ev-even">ブラウザ操作の自動化・E2Eテスト</td></tr>
+          <tr><td class="ev-label">テストツール</td><td class="ev-odd">MockMvc</td><td class="ev-odd">Adviceテスト・Controllerのモックテスト</td></tr>
+          <tr><td class="ev-label">モックライブラリ</td><td class="ev-even">Mockito</td><td class="ev-even">依存関係のモック・単体テスト</td></tr>
+          <tr><td class="ev-label">ランタイム</td><td class="ev-odd">Node.js</td><td class="ev-odd">Playwrightの実行環境</td></tr>
+          <tr><td class="ev-label">IDEプラグイン</td><td class="ev-even">Cucumber for Java / Gherkin</td><td class="ev-even">Featureファイル作成・テストドライバ生成</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
