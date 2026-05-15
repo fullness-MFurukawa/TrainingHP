@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azureインフラ構築ハンズオン</title>
+<style>
+  body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; color: #111827; margin: 0; padding: 20px; background: #f0f5fa; }
+  * { box-sizing: border-box; }
+
+  .hero {
+    text-align: center; padding: 48px 24px;
+    background: linear-gradient(135deg, #1a3a5c 0%, #1e4d7a 60%, #2a6099 100%);
+    color: #fff; border-radius: 8px; margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(26,58,92,0.4); position: relative; overflow: hidden;
+  }
+  .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:240px; height:240px; border-radius:50%; background:rgba(0,120,212,0.12); }
+  .hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(0,120,212,0.08); }
+  .hero h1 { margin:0 0 10px; font-size:32px; font-weight:700; color:#fff; position:relative; z-index:1; }
+  .hero h2 { margin:0; font-size:18px; font-weight:400; color:rgba(255,255,255,0.82); position:relative; z-index:1; }
+
+  .catchcopy { text-align:center; margin-bottom:50px; padding:20px; }
+  .catchcopy p { font-size:24px; font-weight:700; color:#1a3a5c; margin:0; line-height:1.6; }
+
+  .section { margin-bottom:50px; }
+  .section-title { font-size:22px; color:#111827; border-left:6px solid #0078D4; padding-left:15px; margin-bottom:30px; font-weight:700; }
+
+  .overview-card { background:#fff; border:1px solid #c0d8ee; border-radius:8px; padding:30px; box-shadow:0 2px 8px rgba(26,58,92,0.07); }
+  .overview-card h3 { color:#111827; border-bottom:2px solid #0078D4; padding-bottom:10px; margin-top:0; font-size:20px; }
+  .overview-card p { font-size:16px; line-height:1.8; color:#1f2937; margin-bottom:30px; }
+  .overview-card h4 { color:#111827; margin-bottom:8px; font-size:17px; }
+  .overview-card ul { font-size:15px; line-height:1.7; color:#1f2937; padding-left:20px; margin-bottom:0; }
+  .overview-card ul li { margin-bottom:6px; }
+  .purpose-item { margin-bottom:22px; }
+  .purpose-item:last-child { margin-bottom:0; }
+
+  .lang-box { background:#f0f8ff; border:1px solid #c0d8ee; border-left:4px solid #0078D4; border-radius:8px; padding:16px 20px; margin-bottom:28px; }
+  .lang-box p { font-size:14px; color:#1f2937; margin:0; line-height:1.7; }
+  .lang-box strong { color:#1a3a5c; }
+
+  .goal-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .goal-card { flex:1; min-width:260px; background:#fff; border:1px solid #c0d8ee; border-top:5px solid #0078D4; border-radius:4px 4px 8px 8px; padding:25px; box-shadow:0 2px 5px rgba(26,58,92,0.07); }
+  .goal-card h4 { margin-top:0; color:#111827; font-size:17px; display:flex; align-items:center; margin-bottom:12px; }
+  .goal-card h4 span { font-size:20px; margin-right:10px; }
+  .goal-card ul { font-size:14px; line-height:1.7; color:#1f2937; padding-left:20px; margin:0; }
+  .goal-card ul li { margin-bottom:7px; }
+  .lecture-tag { display:inline-block; font-size:10px; padding:1px 7px; border-radius:20px; background:#E6F1FB; color:#185FA5; font-weight:500; margin-left:6px; vertical-align:middle; }
+
+  .recommend-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .recommend-card { flex:1; min-width:260px; background:#fff; border:1px solid #c0d8ee; border-radius:8px; padding:25px; box-shadow:0 2px 4px rgba(26,58,92,0.05); }
+  .recommend-card p { font-size:15px; font-weight:700; color:#111827; line-height:1.6; margin:0; }
+  .recommend-card p span { color:#0078D4; }
+
+  .prereq-card { background:#fff; border:1px solid #c0d8ee; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(26,58,92,0.07); }
+  .prereq-card h4 { color:#1a3a5c; margin-top:0; margin-bottom:10px; font-size:17px; border-bottom:1px solid #d0e8f5; padding-bottom:8px; }
+  .prereq-card ul { font-size:15px; line-height:1.7; color:#1f2937; margin-bottom:25px; padding-left:20px; }
+  .prereq-card ul:last-child { margin-bottom:0; }
+
+  /* タブ切り替え */
+  .tab-wrapper { background:#fff; border:1px solid #c0d8ee; border-radius:8px; box-shadow:0 2px 5px rgba(26,58,92,0.07); overflow:hidden; }
+  .tab-buttons { display:flex; border-bottom:2px solid #c0d8ee; }
+  .tab-btn {
+    flex:1; padding:14px 20px; font-size:15px; font-weight:700; cursor:pointer;
+    border:none; background:#f4f8fc; color:#6b7280; transition:all 0.2s;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .tab-btn:first-child { border-right:1px solid #c0d8ee; }
+  .tab-btn.active { background:#fff; color:#1a3a5c; border-bottom:3px solid #0078D4; margin-bottom:-2px; }
+  .tab-btn .lang-badge { display:inline-block; font-size:11px; padding:2px 8px; border-radius:20px; font-weight:600; }
+  .tab-btn.java-btn .lang-badge { background:#EAF3DE; color:#3B6D11; }
+  .tab-btn.cs-btn   .lang-badge { background:#EEEDFE; color:#534AB7; }
+  .tab-content { display:none; padding:24px; }
+  .tab-content.active { display:block; }
+
+  table.curriculum { width:100%; border-collapse:collapse; min-width:600px; line-height:1.6; }
+  table.curriculum thead tr { color:#fff; background:#1a3a5c; }
+  table.curriculum thead th { padding:12px; font-weight:700; text-align:left; border:1px solid #111827; }
+  table.curriculum thead th:first-child { text-align:center; width:8%; }
+  table.curriculum thead th:nth-child(2) { width:30%; }
+  table.curriculum tbody td { padding:11px 12px; border:1px solid #d0e8f5; color:#111827; vertical-align:top; font-size:14px; line-height:1.7; }
+  .day-cell { font-weight:700; text-align:center; white-space:nowrap; }
+  .d1 { background:#cce4f7; color:#003f6b; }
+  .d2 { background:#99c8f0; color:#003f6b; }
+  .ch-odd-java  { font-weight:700; background:#F4FAF0; color:#3B6D11; }
+  .ch-even-java { font-weight:700; background:#fff; color:#3B6D11; }
+  .ch-odd-cs    { font-weight:700; background:#F5F4FE; color:#534AB7; }
+  .ch-even-cs   { font-weight:700; background:#fff; color:#534AB7; }
+  .ch-special   { font-weight:700; background:#f0f8ff; color:#E65100; }
+  .co-odd  { background:#FDFAF5; }
+  .co-even { background:#fff; }
+  .co-app-java { background:#F4FAF0; }
+  .co-app-cs   { background:#F5F4FE; }
+
+  table.env-table { width:100%; border-collapse:collapse; min-width:400px; border:1px solid #0078D4; line-height:1.5; }
+  table.env-table thead tr { background:#1a3a5c; color:#fff; }
+  table.env-table thead th { padding:10px; border:1px solid #111827; text-align:left; font-weight:700; font-size:14px; }
+  table.env-table tbody td { padding:8px 10px; border:1px solid #d0e8f5; font-size:13px; color:#111827; }
+  .ev-label { font-weight:700; background:#cce4f7; color:#003f6b; }
+  .ev-odd  { background:#FDFAF5; }
+  .ev-even { background:#fff; }
+  .java-tag { display:inline-block; font-size:10px; padding:1px 7px; border-radius:20px; background:#EAF3DE; color:#3B6D11; font-weight:500; margin-left:4px; }
+  .cs-tag   { display:inline-block; font-size:10px; padding:1px 7px; border-radius:20px; background:#EEEDFE; color:#534AB7; font-weight:500; margin-left:4px; }
+
+  .next-step { background:#f0f8ff; border:1px solid #c0d8ee; border-radius:8px; padding:20px 24px; margin-top:16px; }
+  .next-step p { font-size:14px; color:#1f2937; margin:0; line-height:1.7; }
+  .next-step strong { color:#0078D4; }
+
+  .table-wrap { overflow-x:auto; }
+  .note { font-size:13px; color:#2a5a8a; margin-top:10px; padding-left:4px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Azureインフラ構築ハンズオン</h1>
+  <h2>ネットワーク設計からアプリケーション公開まで</h2>
+</div>
+
+<div class="catchcopy">
+  <p>使い慣れた言語で、Azureインフラの実務を体験する。</p>
+</div>
+
+<div style="font-family:'Segoe UI',sans-serif; color:#111827;">
+
+  <!-- 研修概要 -->
+  <div class="section">
+    <h2 class="section-title">研修概要</h2>
+    <div class="overview-card">
+
+      <div class="lang-box">
+        <p>🔧 <strong>Java（Spring Boot）またはC#（ASP.NET Core）から選択して受講できます</strong><br>
+        アプリケーション開発フェーズは使い慣れた言語を選択できるため、JavaエンジニアもC#エンジニアも同じAWSインフラ研修を受講できます。</p>
+      </div>
+
+      <h3>■ 本研修について</h3>
+      <p>本研修は、Azure上にWebアプリケーションを構築・公開・運用する一連の流れを通じて、クラウド環境における実務で必要となる基礎知識と考え方を身につけるハンズオンプログラムです。<br><br>
+      VNet（ネットワーク設計）・VM（サーバー構築）・Azure Database for PostgreSQL（データベース）・Azure Blob Storage（ストレージ）を段階的に構築し、Nginx・HTTPSを含む本番を意識したインフラ環境を自分の手で作り上げます。Microsoft Entra ID・Azure Monitorについては講義形式で概念と役割を体系的に理解します。<br><br>
+      アプリケーション開発フェーズはJava（Spring Boot）またはC#（ASP.NET Core）から選択できるため、使い慣れた言語でAWSインフラとの連携を実践できます。「作って終わり」ではなく、リソース削除まで含めたクラウド運用の全工程を体験します。</p>
+
+      <h3>■ 本研修の4つの目的</h3>
+      <p style="margin-bottom:16px;">本研修では、以下の4つを習得することを目的としています。</p>
+      <div class="purpose-item">
+        <h4>1. インフラ構築・理解</h4>
+        <p>VPC上にWebアプリケーション用の基本的なネットワーク構成を設計・構築できる。EC2・RDS・S3を組み合わせた典型的なWebアプリケーション基盤を理解できる。Azure DNS・Azure Key Vaultを用いたHTTPSによる公開の仕組みを説明できる。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>2. アプリケーションとインフラの関係理解</h4>
+        <p>Java（Spring Boot）またはC#（ASP.NET Core）のWebアプリケーションがどのAWSサービスと、どのように連携しているかを説明できる。アプリケーション視点とインフラ視点の役割分担を理解できる。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>3. セキュリティ・運用の概念理解 <span class="lecture-tag">Microsoft Entra ID・Azure Monitorは講義</span></h4>
+        <p>Microsoft Entra IDによる認証・認可の基本を理解できる。Azure Monitorによる監視・ログ・アラームの役割を説明できる。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>4. クラウド運用の基礎</h4>
+        <p>作成したAWSリソースを依存関係を意識して安全に削除できる。</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 到達目標 -->
+  <div class="section">
+    <h2 class="section-title">到達目標（受講後に身につくスキル）</h2>
+    <div class="goal-grid">
+      <div class="goal-card">
+        <h4><span>🏗️</span>インフラ構築</h4>
+        <ul>
+          <li>VNet・VM・Azure Database・Blob Storageを組み合わせたWebアプリケーション基盤を設計・構築できる</li>
+          <li>NSG・SSH公開鍵・Public IP・HTTPSを設定し、セキュアな環境を構成できる</li>
+        </ul>
+      </div>
+      <div class="goal-card">
+        <h4><span>🔗</span>アプリ連携</h4>
+        <ul>
+          <li>Java（Spring Boot）またはC#（ASP.NET Core）のWebアプリをAWS上にデプロイできる</li>
+          <li>Nginxのリバースプロキシ設定によりアプリケーションを公開できる</li>
+        </ul>
+      </div>
+      <div class="goal-card">
+        <h4><span>🔐</span>セキュリティ・運用 <span class="lecture-tag">講義</span></h4>
+        <ul>
+          <li>Microsoft Entra ID・Azure Monitorの役割と仕組みを説明できる</li>
+          <li>AWSリソースの依存関係を理解し、正しい順序で安全に削除できる</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- こんな企業にお勧め -->
+  <div class="section">
+    <h2 class="section-title">こんな企業にお勧めします</h2>
+    <div class="recommend-grid">
+      <div class="recommend-card"><p>Java・C#エンジニアに<span>Azureインフラの実務スキル</span>を習得させたい</p></div>
+      <div class="recommend-card"><p>アプリ開発からクラウドデプロイ・運用まで担える<span>フルスタックエンジニアを育成</span>したい</p></div>
+      <div class="recommend-card"><p>Azure上でのWebアプリケーション構築・公開・監視・削除の<span>全工程をチームに定着</span>させたい</p></div>
+      <div class="recommend-card"><p>GitHub ActionsのCI/CDと組み合わせて、<span>自動デプロイ環境</span>を整備したい</p></div>
+    </div>
+    <div class="next-step">
+      <p>📌 本研修は <strong>C#シリーズ（Webアプリ編・データベース編・REST API開発）</strong> の次のステップとして設計されています。<br>
+      <strong>GitHub Actionsハンズオン</strong> と組み合わせることで、コードのプッシュからAzureへの自動デプロイまでを一貫して体験できます。</p>
+    </div>
+  </div>
+
+  <!-- カリキュラム（タブ切り替え） -->
+  <div class="section">
+    <h2 class="section-title">カリキュラム詳細（全2日間）</h2>
+
+    <div class="tab-wrapper">
+      <div class="tab-buttons">
+        <button class="tab-btn java-btn active" onclick="switchTab('java')">
+          ☕ <span class="lang-badge">Java</span> Spring Boot を選択した場合
+        </button>
+        <button class="tab-btn cs-btn" onclick="switchTab('cs')">
+          🔷 <span class="lang-badge">C#</span> ASP.NET Core を選択した場合
+        </button>
+      </div>
+
+      <!-- Java タブ -->
+      <div id="tab-java" class="tab-content active">
+        <div class="table-wrap">
+          <table class="curriculum">
+            <thead>
+              <tr>
+                <th style="text-align:center;">日程</th>
+                <th>章・学習テーマ</th>
+                <th>学習内容・習得スキル</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="day-cell d1" rowspan="5">1日目</td>
+                <td class="ch-odd-java">第1章：Azureの概要</td>
+                <td class="co-odd">Azureの概要・クラウドの特徴（オンプレミスとの比較）・メインサービスの全体像・基本サービスの連携・リージョンとアベイラビリティゾーン（AZ）・リソースグループを理解する。</td>
+              </tr>
+              <tr>
+                <td class="ch-even-java">第2章：VNet（Virtual Network）</td>
+                <td class="co-even">VNetとは・VNetを構成する要素・VNetの作成・サブネット・システムルート・リソースグループを設計・構築する。</td>
+              </tr>
+              <tr>
+                <td class="ch-odd-java">第3章：Virtual Machine（VM）</td>
+                <td class="co-odd">VMの作成・Network Security Group（NSG）・SSH公開鍵・Public IP・VS CodeによるSSH接続・Nginxの設定・HTTPSの有効化を実践する。</td>
+              </tr>
+              <tr>
+                <td class="ch-even-java">第4章：Azure Database for PostgreSQL</td>
+                <td class="co-even">Azure Database for PostgreSQLの概要・基本構成・セキュリティ設定・スペック構成・エンドポイントの設定・VMからの接続を実践する。</td>
+              </tr>
+              <tr>
+                <td class="ch-odd-java">第5章：Azure Blob Storage</td>
+                <td class="co-odd">Azure Blob Storageの概要・ユースケース・ストレージクラス・セキュリティとアクセス制御・コンテナの作成と利用ステップを実践する。</td>
+              </tr>
+              <tr>
+                <td class="day-cell d2" rowspan="3">2日目</td>
+                <td class="ch-special">第6章：Java Webアプリ開発</td>
+                <td class="co-app-java">Spring BootによるWebアプリケーションの構成・作成・Azure Database for PostgreSQL・Blob Storageとの連携・Nginxリバースプロキシ設定によるアプリケーション公開を実装する。</td>
+              </tr>
+              <tr>
+                <td class="ch-even-java">第8章：リソースのクリーニング</td>
+                <td class="co-even">クリーニングの基本原則・Azureリソースの依存関係を理解し、Blob Storage→DB→VM→VNetの順序で安全に削除する（リソースグループ単位での削除も可能）。</td>
+              </tr>
+              <tr>
+                <td class="ch-odd-java">第9章：その他のサービス <span class="lecture-tag">講義</span></td>
+                <td class="co-odd">Azure DNS・Azure Key Vault（証明書）・Microsoft Entra ID・Azure Monitorの役割と仕組みを講義形式で学ぶ。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- C# タブ -->
+      <div id="tab-cs" class="tab-content">
+        <div class="table-wrap">
+          <table class="curriculum">
+            <thead>
+              <tr>
+                <th style="text-align:center;">日程</th>
+                <th>章・学習テーマ</th>
+                <th>学習内容・習得スキル</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="day-cell d1" rowspan="5">1日目</td>
+                <td class="ch-odd-cs">第1章：Azureの概要</td>
+                <td class="co-odd">Azureの概要・クラウドの特徴（オンプレミスとの比較）・メインサービスの全体像・基本サービスの連携・リージョンとアベイラビリティゾーン（AZ）・リソースグループを理解する。</td>
+              </tr>
+              <tr>
+                <td class="ch-even-cs">第2章：VNet（Virtual Network）</td>
+                <td class="co-even">VNetとは・VNetを構成する要素・VNetの作成・サブネット・システムルート・リソースグループを設計・構築する。</td>
+              </tr>
+              <tr>
+                <td class="ch-odd-cs">第3章：Virtual Machine（VM）</td>
+                <td class="co-odd">VMの作成・Network Security Group（NSG）・SSH公開鍵・Public IP・VS CodeによるSSH接続・Nginxの設定・HTTPSの有効化を実践する。</td>
+              </tr>
+              <tr>
+                <td class="ch-even-cs">第4章：Azure Database for PostgreSQL</td>
+                <td class="co-even">Azure Database for PostgreSQLの概要・基本構成・セキュリティ設定・スペック構成・エンドポイントの設定・VMからの接続を実践する。</td>
+              </tr>
+              <tr>
+                <td class="ch-odd-cs">第5章：Azure Blob Storage</td>
+                <td class="co-odd">Azure Blob Storageの概要・ユースケース・ストレージクラス・セキュリティとアクセス制御・コンテナの作成と利用ステップを実践する。</td>
+              </tr>
+              <tr>
+                <td class="day-cell d2" rowspan="3">2日目</td>
+                <td class="ch-special">第7章：C# Webアプリ開発</td>
+                <td class="co-app-cs">ASP.NET CoreによるWebアプリケーションの構成・作成・Azure Database for PostgreSQL・Blob Storageとの連携・Nginxリバースプロキシ設定によるアプリケーション公開を実装する。</td>
+              </tr>
+              <tr>
+                <td class="ch-even-cs">第8章：リソースのクリーニング</td>
+                <td class="co-even">クリーニングの基本原則・Azureリソースの依存関係を理解し、Blob Storage→DB→VM→VNetの順序で安全に削除する（リソースグループ単位での削除も可能）。</td>
+              </tr>
+              <tr>
+                <td class="ch-odd-cs">第9章：その他のサービス <span class="lecture-tag">講義</span></td>
+                <td class="co-odd">Azure DNS・Azure Key Vault（証明書）・Microsoft Entra ID・Azure Monitorの役割と仕組みを講義形式で学ぶ。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <p class="note">※ 第6章（Java）・第7章（C#）はいずれか一方を受講します。受講前に選択してください。</p>
+    <p class="note">※ 第9章（その他のサービス）は演習なし・講義形式で実施します。</p>
+  </div>
+
+  <!-- 前提知識 -->
+  <div class="section">
+    <h2 class="section-title">受講にあたっての前提知識</h2>
+    <div class="prereq-card">
+      <h4>プログラミングの基礎知識</h4>
+      <ul>
+        <li>Java（Spring Boot）またはC#（ASP.NET Core）を用いた基本的なWebアプリケーション開発の経験があること。</li>
+        <li>オブジェクト指向プログラミングの基本を理解していること。</li>
+      </ul>
+      <h4>Web・データベースの基礎知識</h4>
+      <ul>
+        <li>HTTPリクエスト・レスポンスの基本概念とREST APIの基本を理解していること。</li>
+        <li>リレーショナルデータベースの基本概念とSQLによるCRUD操作ができること。</li>
+      </ul>
+      <h4>基本的なPC・OS操作</h4>
+      <ul>
+        <li>Visual Studio Codeを使ったコード編集・ターミナル操作ができること。</li>
+        <li>コマンドプロンプト・PowerShellでの基本的なコマンド入力ができること。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 必要な受講環境 -->
+  <div class="section">
+    <h2 class="section-title">必要な受講環境</h2>
+    <div class="table-wrap">
+      <table class="env-table">
+        <thead>
+          <tr><th style="width:20%;">区分</th><th style="width:40%;">環境 / ツール</th><th>役割・用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="ev-label">クラウド環境</td><td class="ev-odd">Azureポータル（東日本リージョン）</td><td class="ev-odd">受講者ごとに用意されたAzureサブスクリプションで演習を実施</td></tr>
+          <tr><td class="ev-label">ホストOS</td><td class="ev-even">Windows 11</td><td class="ev-even">研修用PCの基本環境</td></tr>
+          <tr><td class="ev-label">IDE</td><td class="ev-odd">Visual Studio Code</td><td class="ev-odd">コード編集・SSH接続・ターミナル操作</td></tr>
+          <tr><td class="ev-label">ターミナル</td><td class="ev-even">Windows Terminal / PowerShell</td><td class="ev-even">ファイル編集・コマンド操作・結果確認</td></tr>
+          <tr><td class="ev-label">EC2 OS</td><td class="ev-odd">Ubuntu 24.04</td><td class="ev-odd">VMの実行環境</td></tr>
+          <tr><td class="ev-label">RDBMS</td><td class="ev-even">PostgreSQL</td><td class="ev-even">Azure Database for PostgreSQLのデータベースエンジン</td></tr>
+          <tr><td class="ev-label">SQLツール</td><td class="ev-odd">pgAdmin 4</td><td class="ev-odd">データベースリソース作成・接続確認</td></tr>
+          <tr><td class="ev-label">SDK（Java）</td><td class="ev-even">JDK 21 / Spring Boot 4 <span class="java-tag">Java選択者</span></td><td class="ev-even">Java Webアプリケーションの構築</td></tr>
+          <tr><td class="ev-label">SDK（C#）</td><td class="ev-odd">.NET SDK 8 / ASP.NET Core 8 <span class="cs-tag">C#選択者</span></td><td class="ev-odd">C# Webアプリケーションの構築</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">※ Azureサブスクリプションは受講者ごとに用意します。事前の作成は不要です。</p>
+    <p class="note">※ Java・C#のSDKはいずれか選択した言語のみ準備が必要です。</p>
+  </div>
+
+</div>
+
+<script>
+function switchTab(lang) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + lang).classList.add('active');
+  document.querySelector('.' + lang + '-btn').classList.add('active');
+}
+</script>
+</body>
+</html>
