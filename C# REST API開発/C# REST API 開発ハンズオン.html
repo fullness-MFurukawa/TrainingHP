@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C# REST API 開発ハンズオン</title>
+<style>
+  body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; color: #1e1b3a; margin: 0; padding: 20px; background: #f4f3fb; }
+  * { box-sizing: border-box; }
+
+  .hero {
+    text-align: center; padding: 48px 24px;
+    background: linear-gradient(135deg, #2d2560 0%, #3f3890 60%, #534AB7 100%);
+    color: #fff; border-radius: 8px; margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(83,74,183,0.3); position: relative; overflow: hidden;
+  }
+  .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:240px; height:240px; border-radius:50%; background:rgba(255,255,255,0.06); }
+  .hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.04); }
+  .hero h1 { margin:0 0 10px; font-size:32px; font-weight:700; color:#fff; position:relative; z-index:1; }
+  .hero h2 { margin:0; font-size:18px; font-weight:400; color:rgba(255,255,255,0.82); position:relative; z-index:1; }
+
+  .catchcopy { text-align:center; margin-bottom:50px; padding:20px; }
+  .catchcopy p { font-size:24px; font-weight:700; color:#534AB7; margin:0; line-height:1.6; }
+
+  .section { margin-bottom:50px; }
+  .section-title { font-size:22px; color:#1e1b3a; border-left:6px solid #534AB7; padding-left:15px; margin-bottom:30px; font-weight:700; }
+
+  .overview-card { background:#fff; border:1px solid #d6d3f0; border-radius:8px; padding:30px; box-shadow:0 2px 8px rgba(83,74,183,0.07); }
+  .overview-card h3 { color:#1e1b3a; border-bottom:2px solid #534AB7; padding-bottom:10px; margin-top:0; font-size:20px; }
+  .overview-card p { font-size:16px; line-height:1.8; color:#444056; margin-bottom:30px; }
+  .overview-card h4 { color:#1e1b3a; margin-bottom:8px; font-size:17px; }
+  .overview-card ul { font-size:15px; line-height:1.7; color:#444056; padding-left:20px; margin-bottom:0; }
+  .overview-card ul li { margin-bottom:6px; }
+  .purpose-item { margin-bottom:22px; }
+  .purpose-item:last-child { margin-bottom:0; }
+
+  .goal-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .goal-card { flex:1; min-width:280px; background:#fff; border:1px solid #d6d3f0; border-top:5px solid #534AB7; border-radius:4px 4px 8px 8px; padding:25px; box-shadow:0 2px 5px rgba(83,74,183,0.07); }
+  .goal-card h4 { margin-top:0; color:#1e1b3a; font-size:17px; display:flex; align-items:center; margin-bottom:12px; }
+  .goal-card h4 span { font-size:20px; margin-right:10px; }
+  .goal-card ul { font-size:14px; line-height:1.7; color:#444056; padding-left:20px; margin:0; }
+  .goal-card ul li { margin-bottom:7px; }
+
+  .recommend-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .recommend-card { flex:1; min-width:260px; background:#fff; border:1px solid #d6d3f0; border-radius:8px; padding:25px; box-shadow:0 2px 4px rgba(83,74,183,0.05); }
+  .recommend-card p { font-size:15px; font-weight:700; color:#1e1b3a; line-height:1.6; margin:0; }
+  .recommend-card p span { color:#534AB7; }
+
+  .prereq-card { background:#fff; border:1px solid #d6d3f0; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(83,74,183,0.07); }
+  .prereq-card h4 { color:#3f3890; margin-top:0; margin-bottom:10px; font-size:17px; border-bottom:1px solid #e8e5f8; padding-bottom:8px; }
+  .prereq-card ul { font-size:15px; line-height:1.7; color:#444056; margin-bottom:25px; padding-left:20px; }
+  .prereq-card ul:last-child { margin-bottom:0; }
+
+  .table-wrap { overflow-x:auto; }
+
+  table.curriculum { width:100%; border-collapse:collapse; min-width:700px; line-height:1.6; box-shadow:0 2px 5px rgba(83,74,183,0.08); }
+  table.curriculum thead tr { color:#fff; }
+  table.curriculum thead th { padding:14px 12px; font-weight:700; text-align:left; background:#534AB7; border:1px solid #3f3890; }
+  table.curriculum thead th:first-child { text-align:center; width:8%; }
+  table.curriculum thead th:nth-child(2) { width:30%; }
+  table.curriculum tbody td { padding:12px; border:1px solid #e0ddf5; color:#1e1b3a; vertical-align:top; font-size:14px; line-height:1.7; }
+  .day-cell { font-weight:700; text-align:center; white-space:nowrap; }
+  .d1 { background:#eeecfc; color:#3f3890; }
+  .d2 { background:#e4e1f8; color:#3f3890; }
+  .d3 { background:#d8d4f0; color:#2d2560; }
+  .ch-odd  { font-weight:700; background:#f5f4fd; color:#3f3890; }
+  .ch-even { font-weight:700; background:#fff; color:#3f3890; }
+  .co-odd  { background:#faf9ff; }
+  .co-even { background:#fff; }
+
+  table.env-table { width:100%; border-collapse:collapse; min-width:400px; border:1px solid #534AB7; line-height:1.5; }
+  table.env-table thead tr { background:#534AB7; color:#fff; }
+  table.env-table thead th { padding:10px; border:1px solid #3f3890; text-align:left; font-weight:700; font-size:14px; }
+  table.env-table tbody td { padding:8px 10px; border:1px solid #e0ddf5; font-size:13px; color:#1e1b3a; }
+  .ev-label { font-weight:700; background:#eeecfc; color:#3f3890; }
+  .ev-odd  { background:#f5f4fd; }
+  .ev-even { background:#fff; }
+
+  .note { font-size:13px; color:#6b6488; margin-top:10px; padding-left:4px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>C# REST API 開発ハンズオン</h1>
+  <h2>設計・実装からセキュリティまで</h2>
+</div>
+
+<div class="catchcopy">
+  <p>設計原則が身につくREST API開発ハンズオン</p>
+</div>
+
+<div style="font-family:'Segoe UI',sans-serif; color:#1e1b3a;">
+
+  <!-- 研修概要 -->
+  <div class="section">
+    <h2 class="section-title">研修概要</h2>
+    <div class="overview-card">
+
+      <h3>■ 本研修について</h3>
+      <p>本研修は、C#および.NETを用いたREST API開発を、ドメイン駆動設計（DDD）をベースに体系的に学ぶハンズオンプログラムです。<br><br>
+      「動くコードが書ける」から一歩進み、変更に強く・テストしやすく・チームで共有できる設計を身につけることを目的としています。ドメイン層・インフラストラクチャ層・アプリケーション層・プレゼンテーション層の4層アーキテクチャを実装しながら、依存性逆転の原則（DIP）・Repositoryパターン・Unit of Workなどの設計原則を体得します。<br><br>
+      さらにJWT認証・HTTPS・CORS・HttpOnly Cookieを第二部として独立した章で扱い、セキュリティを考慮した実践的なREST APIの構築まで一気通貫で学びます。</p>
+
+      <h3>■ 本研修の3つの目的</h3>
+      <p style="margin-bottom:16px;">本研修では、以下の3つを習得することを目的としています。</p>
+      <div class="purpose-item">
+        <h4>1. 変更に強い設計ができるようになる</h4>
+        <p>DDDの4層アーキテクチャと設計原則（DIP・Repository・Unit of Work）を実装を通じて体得し、仕様変更・技術変化に強いコードを書けるエンジニアを目指す。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>2. REST APIを設計から実装まで自走できるようになる</h4>
+        <p>ASP.NET Coreの主要機能を活用し、エンドポイント設計・ドメイン実装・例外処理・OpenAPI/Swagger対応まで、一貫したREST APIを独力で構築できる力を養う。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>3. セキュリティを自分の手で実装できるようになる</h4>
+        <p>「知っている」を「できる」に変える。JWT認証・HTTPS・CORS・HttpOnly Cookieを実際に実装することで、セキュリティを他任せにしないエンジニアへの第一歩を踏み出す。</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 到達目標 -->
+  <div class="section">
+    <h2 class="section-title">到達目標（受講後に身につくスキル）</h2>
+    <div class="goal-grid">
+
+      <div class="goal-card">
+        <h4><span>🏗️</span>設計・アーキテクチャ</h4>
+        <ul>
+          <li>DDDの4層アーキテクチャ（ドメイン・インフラ・アプリケーション・プレゼンテーション）を設計・実装できる</li>
+          <li>DIP・Repository・Unit of Workを実装レベルで活用できる</li>
+          <li>変更に強く・テストしやすい設計を説明・実践できる</li>
+        </ul>
+      </div>
+
+      <div class="goal-card">
+        <h4><span>⚙️</span>REST API実装</h4>
+        <ul>
+          <li>ASP.NET CoreによるREST APIのエンドポイント設計・実装ができる</li>
+          <li>EF CoreによるデータベースアクセスとEntityクラスのマッピングを実装できる</li>
+          <li>ViewModelとAdapterによる入出力データの整形・変換ができる</li>
+          <li>Open API / SwaggerによるAPIドキュメントを生成・管理できる</li>
+        </ul>
+      </div>
+
+      <div class="goal-card">
+        <h4><span>🔐</span>セキュリティ</h4>
+        <ul>
+          <li>JWT認証（トークン生成・検証・ログイン/ログアウト）を実装できる</li>
+          <li>HTTPS（TLS 1.3）をKestrelで有効化し安全な通信環境を構築できる</li>
+          <li>CORSの設定とHttpOnly CookieによるXSS対策を実装できる</li>
+          <li>パスワードのハッシュ化（PBKDF2）とASP.NET Core Identityを活用できる</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- こんな企業にお勧め -->
+  <div class="section">
+    <h2 class="section-title">こんな企業にお勧めします</h2>
+    <div class="recommend-grid">
+      <div class="recommend-card"><p>C#・ASP.NET CoreによるREST API開発チームの<span>設計力を高めたい</span></p></div>
+      <div class="recommend-card"><p>DDD・設計原則を<span>実装レベルで習得させたい</span></p></div>
+      <div class="recommend-card"><p>セキュリティを考慮したAPI実装を<span>チーム全体に浸透させたい</span></p></div>
+      <div class="recommend-card"><p>技術負債を解消し、<span>長く保守できるシステム</span>を構築したい</p></div>
+    </div>
+  </div>
+
+  <!-- カリキュラム -->
+  <div class="section">
+    <h2 class="section-title">カリキュラム詳細（全3日間）</h2>
+    <div class="table-wrap">
+      <table class="curriculum">
+        <thead>
+          <tr>
+            <th style="text-align:center;">日程</th>
+            <th>章・学習テーマ</th>
+            <th>学習内容・習得スキル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="day-cell d1" rowspan="2">1日目</td>
+            <td class="ch-odd">第1章：本研修の概要</td>
+            <td class="co-odd">REST APIの基本概念・HTTPメソッドとの対応・6つの基本原則・JWT・HTTPS・アーキテクチャ（DDD4層構造）・サンプル/演習アプリの仕様・プロジェクトの基本構成を把握する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第2章：ドメイン層</td>
+            <td class="co-even">ドメイン層の役割と外部技術に依存しない設計を学ぶ。ドメインオブジェクト・集約と参照の設計・Repositoryインターフェイス・Adapterインターフェイスを実装する。</td>
+          </tr>
+          <tr>
+            <td class="day-cell d2" rowspan="3">2日目</td>
+            <td class="ch-odd">第3章：インフラストラクチャ層</td>
+            <td class="co-odd">EF CoreのEntityクラス・DbContext・Adapterインターフェイス実装・Factoryクラス・Repositoryインターフェイス実装を行い、依存性逆転の原則（DIP）を体得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第4章：アプリケーション層</td>
+            <td class="co-even">ユースケースインターフェイスと実装クラス・例外の責務分離・Unit of Workパターン・更新系/参照系ユースケースを実装する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第5章：プレゼンテーション層</td>
+            <td class="co-odd">APIコントローラ・ルーティング・ViewModelとAdapter・Swagger・例外ハンドリングミドルウェアを実装し、REST APIを完成させる。</td>
+          </tr>
+          <tr>
+            <td class="day-cell d3" rowspan="4">3日目</td>
+            <td class="ch-even">第6章：ユーザー登録</td>
+            <td class="co-even">パスワードのハッシュ化（PBKDF2・ソルト・ストレッチング）・ASP.NET Core Identityを理解し、4層すべてを通じてユーザー登録機能を実装する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第7章：JWT（JSON Web Token）認証</td>
+            <td class="co-odd">JWTの構成要素・クレーム・トークン生成情報を学び、ログイン/ログアウト機能とSwagger連携を実装する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第8章：HTTPSの利用</td>
+            <td class="co-even">TLS 1.3のシーケンスを理解し、KestrelによるHTTPS設定を実装する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第9章：CORSとHttpOnly Cookie</td>
+            <td class="co-odd">CORSミドルウェアの設定・HttpOnly CookieによるXSS対策・CookieOptionsの実装を行う。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">※ 各章末にプログラム実装演習・ディスカッション演習を実施します。</p>
+  </div>
+
+  <!-- 前提知識 -->
+  <div class="section">
+    <h2 class="section-title">受講にあたっての前提知識</h2>
+    <div class="prereq-card">
+
+      <h4>プログラミングの基礎知識</h4>
+      <ul>
+        <li>C#（ASP.NET Core）を用いた、基本的なWebアプリケーションの作成・実行経験があること。</li>
+        <li>オブジェクト指向プログラミング（クラス・インターフェイス・継承）の基本を理解していること。</li>
+      </ul>
+
+      <h4>基本的なPC・OS操作</h4>
+      <ul>
+        <li>Visual Studio Codeを使ったコード編集・ターミナル操作ができること。</li>
+        <li>WSL2（Ubuntu）環境での初歩的なコマンド入力に抵抗がないこと。</li>
+      </ul>
+
+      <h4>データベースの基礎知識</h4>
+      <ul>
+        <li>リレーショナルデータベースの基本概念とSQLによるCRUD操作ができること。</li>
+      </ul>
+
+    </div>
+  </div>
+
+  <!-- 必要な受講環境 -->
+  <div class="section">
+    <h2 class="section-title">必要な受講環境</h2>
+    <div class="table-wrap">
+      <table class="env-table">
+        <thead>
+          <tr><th style="width:18%;">区分</th><th style="width:36%;">環境 / ツール</th><th>役割・用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="ev-label">ホストOS</td><td class="ev-odd">Windows 11</td><td class="ev-odd">研修用PCの基本環境</td></tr>
+          <tr><td class="ev-label">IDE</td><td class="ev-even">Visual Studio Code</td><td class="ev-even">コード編集・ターミナル操作・デバッグ</td></tr>
+          <tr><td class="ev-label">実行環境</td><td class="ev-odd">WSL2（Ubuntu 24.04）</td><td class="ev-odd">Linux環境でのアプリケーション実行</td></tr>
+          <tr><td class="ev-label">SDK</td><td class="ev-even">.NET 8 LTS</td><td class="ev-even">C# / ASP.NET Core アプリケーション開発・実行</td></tr>
+          <tr><td class="ev-label">RDBMS</td><td class="ev-odd">PostgreSQL</td><td class="ev-odd">サンプル・演習アプリのデータベース</td></tr>
+          <tr><td class="ev-label">SQLツール</td><td class="ev-even">pgAdmin 4</td><td class="ev-even">データベースの接続・操作・確認</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-odd">.NET Install Tool / C# Dev Kit / C# / [Extension Pack] C# / C# Namespace Autocompletion / C# XML Documentation Comments / C# Snippets</td><td class="ev-odd">C# / .NET 開発の補完・デバッグ・ドキュメント支援</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

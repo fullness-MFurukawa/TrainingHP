@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TypeScript基礎</title>
+<style>
+  body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; color: #0d1a2d; margin: 0; padding: 20px; background: #f0f4fb; }
+  * { box-sizing: border-box; }
+
+  .hero {
+    text-align: center; padding: 48px 24px;
+    background: linear-gradient(135deg, #1a5fa8 0%, #3178C6 60%, #4a90d9 100%);
+    color: #fff; border-radius: 8px; margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(49,120,198,0.3); position: relative; overflow: hidden;
+  }
+  .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:240px; height:240px; border-radius:50%; background:rgba(255,255,255,0.06); }
+  .hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.04); }
+  .hero h1 { margin:0 0 10px; font-size:32px; font-weight:700; color:#fff; position:relative; z-index:1; }
+  .hero h2 { margin:0; font-size:18px; font-weight:400; color:rgba(255,255,255,0.85); position:relative; z-index:1; }
+
+  .catchcopy { text-align:center; margin-bottom:50px; padding:20px; }
+  .catchcopy p { font-size:24px; font-weight:700; color:#3178C6; margin:0; line-height:1.6; }
+
+  .section { margin-bottom:50px; }
+  .section-title { font-size:22px; color:#0d1a2d; border-left:6px solid #3178C6; padding-left:15px; margin-bottom:30px; font-weight:700; }
+
+  .overview-card { background:#fff; border:1px solid #b8d0ee; border-radius:8px; padding:30px; box-shadow:0 2px 8px rgba(49,120,198,0.07); }
+  .overview-card h3 { color:#0d1a2d; border-bottom:2px solid #3178C6; padding-bottom:10px; margin-top:0; font-size:20px; }
+  .overview-card p { font-size:16px; line-height:1.8; color:#2a3a5a; margin-bottom:30px; }
+  .overview-card h4 { color:#0d1a2d; margin-bottom:8px; font-size:17px; }
+  .overview-card ul { font-size:15px; line-height:1.7; color:#2a3a5a; padding-left:20px; margin-bottom:0; }
+  .overview-card ul li { margin-bottom:6px; }
+  .purpose-item { margin-bottom:22px; }
+  .purpose-item:last-child { margin-bottom:0; }
+
+  .goal-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .goal-card { flex:1; min-width:280px; background:#fff; border:1px solid #b8d0ee; border-top:5px solid #3178C6; border-radius:4px 4px 8px 8px; padding:25px; box-shadow:0 2px 5px rgba(49,120,198,0.07); }
+  .goal-card h4 { margin-top:0; color:#0d1a2d; font-size:17px; display:flex; align-items:center; margin-bottom:12px; }
+  .goal-card h4 span { font-size:20px; margin-right:10px; }
+  .goal-card ul { font-size:14px; line-height:1.7; color:#2a3a5a; padding-left:20px; margin:0; }
+  .goal-card ul li { margin-bottom:7px; }
+
+  .recommend-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .recommend-card { flex:1; min-width:260px; background:#fff; border:1px solid #b8d0ee; border-radius:8px; padding:25px; box-shadow:0 2px 4px rgba(49,120,198,0.05); }
+  .recommend-card p { font-size:15px; font-weight:700; color:#0d1a2d; line-height:1.6; margin:0; }
+  .recommend-card p span { color:#3178C6; }
+
+  .prereq-card { background:#fff; border:1px solid #b8d0ee; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(49,120,198,0.07); }
+  .prereq-card h4 { color:#1a5fa8; margin-top:0; margin-bottom:10px; font-size:17px; border-bottom:1px solid #d4e4f5; padding-bottom:8px; }
+  .prereq-card ul { font-size:15px; line-height:1.7; color:#2a3a5a; margin-bottom:25px; padding-left:20px; }
+  .prereq-card ul:last-child { margin-bottom:0; }
+  .rec-tag { display:inline-block; font-size:10px; padding:1px 8px; border-radius:20px; background:#FAEEDA; color:#854F0B; font-weight:500; margin-left:6px; vertical-align:middle; }
+
+  .table-wrap { overflow-x:auto; }
+
+  table.curriculum { width:100%; border-collapse:collapse; min-width:700px; line-height:1.6; box-shadow:0 2px 5px rgba(49,120,198,0.08); }
+  table.curriculum thead tr { color:#fff; background:#3178C6; }
+  table.curriculum thead th { padding:14px 12px; font-weight:700; text-align:left; border:1px solid #1a5fa8; }
+  table.curriculum thead th:first-child { text-align:center; width:8%; }
+  table.curriculum thead th:nth-child(2) { width:30%; }
+  table.curriculum tbody td { padding:12px; border:1px solid #d4e4f5; color:#0d1a2d; vertical-align:top; font-size:14px; line-height:1.7; }
+  .day-cell { font-weight:700; text-align:center; white-space:nowrap; }
+  .d1 { background:#d4e4f5; color:#1a5fa8; }
+  .d2 { background:#b8d0ee; color:#1a5fa8; }
+  .ch-odd  { font-weight:700; background:#e8f1fb; color:#1a5fa8; }
+  .ch-even { font-weight:700; background:#fff; color:#1a5fa8; }
+  .co-odd  { background:#f2f7fd; }
+  .co-even { background:#fff; }
+
+  table.env-table { width:100%; border-collapse:collapse; min-width:400px; border:1px solid #3178C6; line-height:1.5; }
+  table.env-table thead tr { background:#3178C6; color:#fff; }
+  table.env-table thead th { padding:10px; border:1px solid #1a5fa8; text-align:left; font-weight:700; font-size:14px; }
+  table.env-table tbody td { padding:8px 10px; border:1px solid #d4e4f5; font-size:13px; color:#0d1a2d; }
+  .ev-label { font-weight:700; background:#d4e4f5; color:#1a5fa8; }
+  .ev-odd  { background:#e8f1fb; }
+  .ev-even { background:#fff; }
+
+  .next-step { background:#e8f1fb; border:1px solid #b8d0ee; border-radius:8px; padding:20px 24px; margin-top:16px; }
+  .next-step p { font-size:14px; color:#2a3a5a; margin:0; line-height:1.7; }
+  .next-step strong { color:#3178C6; }
+
+  .note { font-size:13px; color:#5a7a9a; margin-top:10px; padding-left:4px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>TypeScript基礎</h1>
+  <h2>型安全なJavaScript開発の第一歩</h2>
+</div>
+
+<div class="catchcopy">
+  <p>TypeScriptで学ぶ、型安全なWeb開発の基本と実践。</p>
+</div>
+
+<div style="font-family:'Segoe UI',sans-serif; color:#0d1a2d;">
+
+  <!-- 研修概要 -->
+  <div class="section">
+    <h2 class="section-title">研修概要</h2>
+    <div class="overview-card">
+
+      <h3>■ 本研修について</h3>
+      <p>本研修は、TypeScriptによる型安全なWeb開発を、基本構文から非同期処理まで一貫して学ぶハンズオンプログラムです。<br><br>
+      Java・C#などの他言語経験者を対象に、既存のOOP知識を活かしながらTypeScriptを効率よく習得します。Generics・Utility Types・async/awaitを体系的に学び、React研修・GitHub Actions連携へのステップアップを目指します。</p>
+
+      <h3>■ 本研修の3つの目的</h3>
+      <p style="margin-bottom:16px;">本研修では、以下の3つを習得することを目的としています。</p>
+      <div class="purpose-item">
+        <h4>1. TypeScriptの型システムと基本構文の習得</h4>
+        <p>変数宣言・データ型・型推論・配列・関数・OOP・モジュール化を実装レベルで習得する。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>2. TypeScript特有の高度な型機能の体得</h4>
+        <p>GenericsとUtility Types（Partial・Required・Readonly・Pick・Omit等）を実装を通じて体得し、型安全な開発の真価を体感する。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>3. 非同期処理とWeb開発への実践的な接続</h4>
+        <p>Promise・async/await・JSON操作を習得し、React研修・GitHub Actionsへのステップアップの土台を築く。</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 到達目標 -->
+  <div class="section">
+    <h2 class="section-title">到達目標（受講後に身につくスキル）</h2>
+    <div class="goal-grid">
+
+      <div class="goal-card">
+        <h4><span>📝</span>基本構文・OOP</h4>
+        <ul>
+          <li>TypeScriptの基本構文（変数・型・配列・条件分岐・繰り返し）を自走して書ける</li>
+          <li>関数（アロー関数・コールバック関数）とOOP（クラス・インターフェイス・継承）を実装できる</li>
+        </ul>
+      </div>
+
+      <div class="goal-card">
+        <h4><span>🔷</span>高度な型機能</h4>
+        <ul>
+          <li>GenericsとUtility Typesを使って型安全なコードを設計できる</li>
+          <li>React開発・GitHub Actionsに必要なTypeScriptの基礎知識を習得できる</li>
+        </ul>
+      </div>
+
+      <div class="goal-card">
+        <h4><span>⚡</span>非同期処理・Web開発</h4>
+        <ul>
+          <li>Promise・async/awaitを使った非同期処理とJSON操作を実装できる</li>
+          <li>React開発・GitHub Actionsに必要なTypeScriptの基礎知識を習得できる</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- こんな企業にお勧め -->
+  <div class="section">
+    <h2 class="section-title">こんな企業にお勧めします</h2>
+    <div class="recommend-grid">
+      <div class="recommend-card"><p>Java・C#エンジニアのWeb開発・フロントエンド開発への<span>スキルシフトを推進</span>したい</p></div>
+      <div class="recommend-card"><p>TypeScriptによる<span>型安全な開発</span>をチーム全体に浸透させたい</p></div>
+      <div class="recommend-card"><p>React研修・GitHub ActionsへのステップアップのためにTypeScriptの<span>基礎を固めたい</span></p></div>
+      <div class="recommend-card"><p><span>フルスタックエンジニアの育成</span>を目指している</p></div>
+    </div>
+
+    <div class="next-step">
+      <p>📌 本研修は<strong>他言語エンジニアのWebシフト</strong>の転換点として設計されています。<br>
+      本研修修了後は <strong>React研修</strong> または <strong>GitHub Actionsハンズオン（TypeScript CI/CD）</strong> へのステップアップをお勧めします。</p>
+    </div>
+  </div>
+
+  <!-- カリキュラム -->
+  <div class="section">
+    <h2 class="section-title">カリキュラム詳細（全2日間）</h2>
+    <div class="table-wrap">
+      <table class="curriculum">
+        <thead>
+          <tr>
+            <th style="text-align:center;">日程</th>
+            <th>章・学習テーマ</th>
+            <th>学習内容・習得スキル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="day-cell d1" rowspan="4">1日目</td>
+            <td class="ch-odd">第1章：TypeScriptの基礎概念</td>
+            <td class="co-odd">TypeScriptとJavaScriptの関係・TypeScriptのメリット（型安全性・IDE補完・バグの早期発見）・利用シーン（フロントエンド・バックエンド・React/Next.js）を理解する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第2章：開発環境の準備</td>
+            <td class="co-even">Node.js・npmのインストール・TypeScriptのセットアップ・tsconfig.jsonの基本設定・コンパイルと実行（tsc・ts-node）の流れを実践する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第3章：基本構文</td>
+            <td class="co-odd">変数宣言（let・const）・プリミティブ型・型推論・配列・演算子・条件分岐・繰り返し処理を実装する。Java・C#との構文比較を通じて効率よく習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第4章：関数</td>
+            <td class="co-even">関数の基本・オプション引数・デフォルト引数・アロー関数・コールバック関数を実装する。React開発で頻繁に使うアロー関数・コールバック関数に重点を置いて学ぶ。</td>
+          </tr>
+          <tr>
+            <td class="day-cell d2" rowspan="3">2日目</td>
+            <td class="ch-odd">第5章：オブジェクト指向プログラミング</td>
+            <td class="co-odd">クラス・アクセス修飾子（public・private・protected）・継承・インターフェイス・型エイリアス・例外処理・モジュール化（import・export）を実装する。Java・C#のOOP知識をTypeScriptで表現する方法を対比しながら学ぶ。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第6章：GenericsとUtility Types</td>
+            <td class="co-even">Genericsを使った型安全な汎用コンポーネントの実装を学ぶ。Utility Types（Partial・Required・Readonly・Pick・Omit・Record等）を活用し、型安全な開発スタイルを体得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第7章：非同期処理とJSONの操作</td>
+            <td class="co-odd">Promiseの概念とチェーン処理・async/awaitによる直感的な非同期処理・JSONのパース・シリアライズ・型付きJSONデータの操作を実装する。API連携の実践的な基礎を身につける。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">※ 各章末に演習を実施します。</p>
+  </div>
+
+  <!-- 前提知識 -->
+  <div class="section">
+    <h2 class="section-title">受講にあたっての前提知識</h2>
+    <div class="prereq-card">
+
+      <h4>プログラミングの基礎知識</h4>
+      <ul>
+        <li>Java・C#などの言語を用いた基本的なプログラミング（変数・条件分岐・ループ・クラス・メソッド）ができること。</li>
+        <li>オブジェクト指向プログラミング（クラス・インターフェイス・継承）の基本を理解していること。</li>
+      </ul>
+
+      <h4>基本的なPC・OS操作</h4>
+      <ul>
+        <li>Visual Studio Codeを使ったコード編集・ターミナル操作ができること。</li>
+        <li>コマンドプロンプト・PowerShellでの基本的なコマンド入力に抵抗がないこと。</li>
+      </ul>
+
+      <h4>あると望ましい知識 <span class="rec-tag">推奨</span></h4>
+      <ul>
+        <li>JavaScriptの基本的な概念（変数・関数・オブジェクト）をなんとなく知っていること（経験は不要）。</li>
+        <li>HTMLの基本的な読み書きができること。</li>
+      </ul>
+
+    </div>
+  </div>
+
+  <!-- 必要な受講環境 -->
+  <div class="section">
+    <h2 class="section-title">必要な受講環境</h2>
+    <div class="table-wrap">
+      <table class="env-table">
+        <thead>
+          <tr><th style="width:22%;">区分</th><th style="width:38%;">環境 / ツール</th><th>役割・用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="ev-label">ホストOS</td><td class="ev-odd">Windows 11</td><td class="ev-odd">研修用PCの基本環境</td></tr>
+          <tr><td class="ev-label">IDE</td><td class="ev-even">Visual Studio Code</td><td class="ev-even">コード編集・ターミナル操作・デバッグ</td></tr>
+          <tr><td class="ev-label">ランタイム</td><td class="ev-odd">Node.js（LTS版）</td><td class="ev-odd">TypeScriptの実行環境・npmパッケージ管理</td></tr>
+          <tr><td class="ev-label">言語</td><td class="ev-even">TypeScript</td><td class="ev-even">型安全なJavaScript開発（npmでインストール）</td></tr>
+          <tr><td class="ev-label">実行ツール</td><td class="ev-odd">ts-node</td><td class="ev-odd">TypeScriptファイルの直接実行</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-even">Prettier / ESLint</td><td class="ev-even">コードフォーマット・静的解析</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

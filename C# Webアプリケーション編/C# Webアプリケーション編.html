@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C# Webアプリケーション編</title>
+<style>
+  body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; color: #1a1a3e; margin: 0; padding: 20px; background: #f0f0f8; }
+  * { box-sizing: border-box; }
+
+  .hero {
+    text-align: center; padding: 48px 24px;
+    background: linear-gradient(135deg, #3d52a0 0%, #4a5eb8 60%, #6070cc 100%);
+    color: #fff; border-radius: 8px; margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(61,82,160,0.3); position: relative; overflow: hidden;
+  }
+  .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:240px; height:240px; border-radius:50%; background:rgba(255,255,255,0.06); }
+  .hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.04); }
+  .hero h1 { margin:0 0 10px; font-size:32px; font-weight:700; color:#fff; position:relative; z-index:1; }
+  .hero h2 { margin:0; font-size:18px; font-weight:400; color:rgba(255,255,255,0.85); position:relative; z-index:1; }
+
+  .catchcopy { text-align:center; margin-bottom:50px; padding:20px; }
+  .catchcopy p { font-size:24px; font-weight:700; color:#3d52a0; margin:0; line-height:1.6; }
+
+  .section { margin-bottom:50px; }
+  .section-title { font-size:22px; color:#1a1a3e; border-left:6px solid #3d52a0; padding-left:15px; margin-bottom:30px; font-weight:700; }
+
+  .overview-card { background:#fff; border:1px solid #c5cae9; border-radius:8px; padding:30px; box-shadow:0 2px 8px rgba(61,82,160,0.07); }
+  .overview-card h3 { color:#1a1a3e; border-bottom:2px solid #3d52a0; padding-bottom:10px; margin-top:0; font-size:20px; }
+  .overview-card p { font-size:16px; line-height:1.8; color:#3a3a6a; margin-bottom:30px; }
+  .overview-card h4 { color:#1a1a3e; margin-bottom:8px; font-size:17px; }
+  .overview-card ul { font-size:15px; line-height:1.7; color:#3a3a6a; padding-left:20px; margin-bottom:0; }
+  .overview-card ul li { margin-bottom:6px; }
+  .purpose-item { margin-bottom:22px; }
+  .purpose-item:last-child { margin-bottom:0; }
+
+  .goal-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .goal-card { flex:1; min-width:280px; background:#fff; border:1px solid #c5cae9; border-top:5px solid #3d52a0; border-radius:4px 4px 8px 8px; padding:25px; box-shadow:0 2px 5px rgba(61,82,160,0.07); }
+  .goal-card h4 { margin-top:0; color:#1a1a3e; font-size:17px; display:flex; align-items:center; margin-bottom:12px; }
+  .goal-card h4 span { font-size:20px; margin-right:10px; }
+  .goal-card ul { font-size:14px; line-height:1.7; color:#3a3a6a; padding-left:20px; margin:0; }
+  .goal-card ul li { margin-bottom:7px; }
+
+  .recommend-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .recommend-card { flex:1; min-width:260px; background:#fff; border:1px solid #c5cae9; border-radius:8px; padding:25px; box-shadow:0 2px 4px rgba(61,82,160,0.05); }
+  .recommend-card p { font-size:15px; font-weight:700; color:#1a1a3e; line-height:1.6; margin:0; }
+  .recommend-card p span { color:#3d52a0; }
+
+  .prereq-card { background:#fff; border:1px solid #c5cae9; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(61,82,160,0.07); }
+  .prereq-card h4 { color:#2d3d7a; margin-top:0; margin-bottom:10px; font-size:17px; border-bottom:1px solid #d1c4e9; padding-bottom:8px; }
+  .prereq-card ul { font-size:15px; line-height:1.7; color:#3a3a6a; margin-bottom:25px; padding-left:20px; }
+  .prereq-card ul:last-child { margin-bottom:0; }
+  .rec-tag { display:inline-block; font-size:10px; padding:1px 8px; border-radius:20px; background:#FAEEDA; color:#854F0B; font-weight:500; margin-left:6px; vertical-align:middle; }
+
+  .table-wrap { overflow-x:auto; }
+
+  table.curriculum { width:100%; border-collapse:collapse; min-width:700px; line-height:1.6; box-shadow:0 2px 5px rgba(61,82,160,0.08); }
+  table.curriculum thead tr { color:#fff; background:#3d52a0; }
+  table.curriculum thead th { padding:14px 12px; font-weight:700; text-align:left; border:1px solid #2d3d7a; }
+  table.curriculum thead th:first-child { text-align:center; width:8%; }
+  table.curriculum thead th:nth-child(2) { width:30%; }
+  table.curriculum tbody td { padding:12px; border:1px solid #d1c4e9; color:#1a1a3e; vertical-align:top; font-size:14px; line-height:1.7; }
+  .day-cell { font-weight:700; text-align:center; white-space:nowrap; }
+  .d1 { background:#e8eaf6; color:#2d3d7a; }
+  .d2 { background:#c5cae9; color:#2d3d7a; }
+  .ch-odd  { font-weight:700; background:#ede7f6; color:#2d3d7a; }
+  .ch-even { font-weight:700; background:#fff; color:#2d3d7a; }
+  .co-odd  { background:#f3f0fb; }
+  .co-even { background:#fff; }
+
+  table.env-table { width:100%; border-collapse:collapse; min-width:400px; border:1px solid #3d52a0; line-height:1.5; }
+  table.env-table thead tr { background:#3d52a0; color:#fff; }
+  table.env-table thead th { padding:10px; border:1px solid #2d3d7a; text-align:left; font-weight:700; font-size:14px; }
+  table.env-table tbody td { padding:8px 10px; border:1px solid #d1c4e9; font-size:13px; color:#1a1a3e; }
+  .ev-label { font-weight:700; background:#e8eaf6; color:#2d3d7a; }
+  .ev-odd  { background:#ede7f6; }
+  .ev-even { background:#fff; }
+
+  .next-step { background:#ede7f6; border:1px solid #c5cae9; border-radius:8px; padding:20px 24px; margin-top:16px; }
+  .next-step p { font-size:14px; color:#3a3a6a; margin:0; line-height:1.7; }
+  .next-step strong { color:#3d52a0; }
+
+  .note { font-size:13px; color:#6a6a9a; margin-top:10px; padding-left:4px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>C# Webアプリケーション編</h1>
+  <h2>ASP.NET Core による Webアプリケーション開発</h2>
+</div>
+
+<div class="catchcopy">
+  <p>ASP.NET Coreで学ぶ、Webアプリ開発の基本と設計。</p>
+</div>
+
+<div style="font-family:'Segoe UI',sans-serif; color:#1a1a3e;">
+
+  <!-- 研修概要 -->
+  <div class="section">
+    <h2 class="section-title">研修概要</h2>
+    <div class="overview-card">
+
+      <h3>■ 本研修について</h3>
+      <p>本研修は、C#および.NETを用いたWebアプリケーション開発を、ASP.NET CoreのMVCアーキテクチャをベースに体系的に学ぶハンズオンプログラムです。<br><br>
+      HTTPリクエストの受け取りからController・Service・Repository・Razor Viewを経てレスポンスを返すまでの全工程を、実装しながら理解します。さらにRepositoryパターン・Adapterパターン・依存性逆転の原則（DIP）を第6章で扱い、「動くコードから設計できるコードへ」の第一歩を踏み出します。<br><br>
+      本研修はREST API開発コースへのステップアップを見据えた設計になっており、設計原則の土台をここで確実に身につけることができます。</p>
+
+      <h3>■ 本研修の3つの目的</h3>
+      <p style="margin-bottom:16px;">本研修では、以下の3つを習得することを目的としています。</p>
+      <div class="purpose-item">
+        <h4>1. ASP.NET CoreによるWebアプリ開発の全体像の把握</h4>
+        <p>HTTPリクエストからレスポンスまでの処理フロー・MVCの役割分担・Razor Viewによる画面生成・Data Annotationsによる入力検証を実装レベルで理解する。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>2. 実務で使えるWebアプリ開発スキルの習得</h4>
+        <p>リクエストパラメータの処理・PRGパターン・TempData・EF CoreによるDBアクセスなど、実際のWebアプリ開発で必要となる技術を体系的に身につける。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>3. 設計原則（Repository・Adapter・DIP）の体得</h4>
+        <p>Repositoryパターン・Adapterパターン・依存性逆転の原則（DIP）を実装を通じて体得し、変更に強く・テストしやすい設計の考え方を習得する。</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 到達目標 -->
+  <div class="section">
+    <h2 class="section-title">到達目標（受講後に身につくスキル）</h2>
+    <div class="goal-grid">
+
+      <div class="goal-card">
+        <h4><span>🌐</span>Webアプリ開発の全体像</h4>
+        <ul>
+          <li>ASP.NET CoreのMVCアーキテクチャを理解し、リクエストからレスポンスまでの全工程を実装できる</li>
+          <li>Controller・Razor View・ViewModelの役割分担を説明・実践できる</li>
+          <li>Data Annotationsによる入力検証とModelStateによるエラー処理を実装できる</li>
+        </ul>
+      </div>
+
+      <div class="goal-card">
+        <h4><span>⚙️</span>実務スキル</h4>
+        <ul>
+          <li>クエリ・ルート・フォームパラメータを適切に受け取り処理できる</li>
+          <li>PRGパターンとTempDataを使った安全な画面遷移を実装できる</li>
+          <li>EF CoreとLINQを用いたDBアクセス層を構築できる</li>
+        </ul>
+      </div>
+
+      <div class="goal-card">
+        <h4><span>🏗️</span>設計原則の基礎</h4>
+        <ul>
+          <li>3層アーキテクチャ（プレゼンテーション・アプリケーション・インフラストラクチャ）を設計・実装できる</li>
+          <li>Repositoryパターン・Adapterパターン・DIPを実装レベルで活用できる</li>
+          <li>変更に強い設計の考え方を説明できる</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- こんな企業にお勧め -->
+  <div class="section">
+    <h2 class="section-title">こんな企業にお勧めします</h2>
+    <div class="recommend-grid">
+      <div class="recommend-card"><p>C#エンジニアをWebアプリ開発から<span>REST API開発へと段階的に育成</span>したい</p></div>
+      <div class="recommend-card"><p>ASP.NET CoreによるWebアプリ開発を、<span>設計原則と合わせて体系的に学ばせたい</span></p></div>
+      <div class="recommend-card"><p>若手エンジニアに<span>「動くコードから設計できるコード」</span>への転換点を与えたい</p></div>
+    </div>
+
+    <div class="next-step">
+      <p>📌 本研修はC#エンジニア育成ロードマップの<strong>第1ステップ</strong>として設計されています。<br>
+      本研修修了後は <strong>C# REST API開発コース</strong>（設計原則が身につくREST API開発ハンズオン）へのステップアップをお勧めします。</p>
+    </div>
+  </div>
+
+  <!-- カリキュラム -->
+  <div class="section">
+    <h2 class="section-title">カリキュラム詳細（全2日間）</h2>
+    <div class="table-wrap">
+      <table class="curriculum">
+        <thead>
+          <tr>
+            <th style="text-align:center;">日程</th>
+            <th>章・学習テーマ</th>
+            <th>学習内容・習得スキル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="day-cell d1" rowspan="4">1日目</td>
+            <td class="ch-odd">第1章：ASP.NET Coreの概要</td>
+            <td class="co-odd">ASP.NET Coreの特徴・MVCモデルの役割分担・技術要素（ViewModel・Data Annotations・Routing・DI・Middleware）・プロジェクト構成を把握する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第2章：Controllerの基本機能</td>
+            <td class="co-even">Controllerクラスの基本ルール・アクションメソッド・HTTPリクエストとのマッピング・戻り値ヘルパーメソッド・ModelStateによるバリデーション制御を学ぶ。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第3章：リクエストパラメータ</td>
+            <td class="co-odd">クエリパラメータ・ルートパラメータ・フォームデータの受け取り方、Data Annotationsによる入力検証・ModelState.IsValidによるエラー処理を実践する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第4章：Razor View Engine</td>
+            <td class="co-even">Razor構文・タグヘルパー・_Layout.cshtmlによる共通レイアウト・部分ビューを実装し、動的なHTML画面を生成できるようになる。</td>
+          </tr>
+          <tr>
+            <td class="day-cell d2" rowspan="2">2日目</td>
+            <td class="ch-odd">第5章：リクエスト遷移制御</td>
+            <td class="co-odd">PRG（Post/Redirect/Get）パターン・TempDataを使った一時データの受け渡し・二重送信防止の仕組みを実装を通じて体得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第6章：データベースアクセス機能の設計・実装</td>
+            <td class="co-even">3層アーキテクチャの設計・Repositoryパターン・Adapterパターン・DIP（依存性逆転の原則）をEF CoreとLINQを用いて実装する。ViewModelAdapter・EntityAdapterによるデータ変換の仕組みを実装し、演習アプリで設計原則を体得する。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">※ 補足-A（LINQの利用）・補足-B（SQLの利用）は自習教材として提供します。2日目は第6章の演習時間を十分に確保します。</p>
+    <p class="note">※ 各章末にプログラム実装演習を実施します。</p>
+  </div>
+
+  <!-- 前提知識 -->
+  <div class="section">
+    <h2 class="section-title">受講にあたっての前提知識</h2>
+    <div class="prereq-card">
+
+      <h4>プログラミングの基礎知識</h4>
+      <ul>
+        <li>C#を用いた基本的なプログラミング（変数・条件分岐・ループ・クラス・メソッド）ができること。</li>
+        <li>オブジェクト指向プログラミング（クラス・インターフェイス・継承・ポリモーフィズム）の基本を理解していること。</li>
+      </ul>
+
+      <h4>基本的なPC・OS操作</h4>
+      <ul>
+        <li>Visual Studio Codeを使ったコード編集・ターミナル操作ができること。</li>
+        <li>WSL2（Ubuntu）環境での初歩的なコマンド入力に抵抗がないこと。</li>
+      </ul>
+
+      <h4>Webの基礎知識</h4>
+      <ul>
+        <li>HTTPリクエスト・レスポンスの基本的な概念（GETとPOSTの違い・ステータスコード）を理解していること。</li>
+        <li>HTML・CSSの基本的な読み書きができること。</li>
+      </ul>
+
+      <h4>あると望ましい知識 <span class="rec-tag">推奨</span></h4>
+      <ul>
+        <li>リレーショナルデータベース（テーブル・主キー・外部キー）の基本概念とSQLによるCRUD操作の経験。</li>
+        <li>GitHubを使ったリポジトリのクローン・コミット・プッシュなど基本的な操作の経験。</li>
+      </ul>
+
+    </div>
+  </div>
+
+  <!-- 必要な受講環境 -->
+  <div class="section">
+    <h2 class="section-title">必要な受講環境</h2>
+    <div class="table-wrap">
+      <table class="env-table">
+        <thead>
+          <tr><th style="width:18%;">区分</th><th style="width:36%;">環境 / ツール</th><th>役割・用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="ev-label">ホストOS</td><td class="ev-odd">Windows 11</td><td class="ev-odd">研修用PCの基本環境</td></tr>
+          <tr><td class="ev-label">IDE</td><td class="ev-even">Visual Studio Code</td><td class="ev-even">コード編集・ターミナル操作・デバッグ</td></tr>
+          <tr><td class="ev-label">実行環境</td><td class="ev-odd">WSL2（Ubuntu 24.04）</td><td class="ev-odd">Linux環境でのアプリケーション実行</td></tr>
+          <tr><td class="ev-label">SDK</td><td class="ev-even">.NET 8 LTS</td><td class="ev-even">C# / ASP.NET Core アプリケーション開発・実行</td></tr>
+          <tr><td class="ev-label">RDBMS</td><td class="ev-odd">PostgreSQL</td><td class="ev-odd">サンプル・演習アプリのデータベース</td></tr>
+          <tr><td class="ev-label">SQLツール</td><td class="ev-even">pgAdmin 4</td><td class="ev-even">データベースの接続・操作・確認</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-odd">.NET Install Tool / C# Dev Kit / C# / [Extension Pack] C# / C# Namespace Autocompletion / C# XML Documentation Comments / C# Snippets</td><td class="ev-odd">C# / .NET 開発の補完・デバッグ・ドキュメント支援</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

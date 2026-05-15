@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ドメイン駆動設計実践Java編</title>
+<style>
+  body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; color: #1a1200; margin: 0; padding: 20px; background: #fdf6ee; }
+  * { box-sizing: border-box; }
+
+  .hero {
+    text-align: center; padding: 48px 24px;
+    background: linear-gradient(135deg, #7a3800 0%, #b85c00 60%, #e07b1a 100%);
+    color: #fff; border-radius: 8px; margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(224,123,26,0.35); position: relative; overflow: hidden;
+  }
+  .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:240px; height:240px; border-radius:50%; background:rgba(255,255,255,0.06); }
+  .hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.04); }
+  .hero h1 { margin:0 0 10px; font-size:32px; font-weight:700; color:#fff; position:relative; z-index:1; }
+  .hero h2 { margin:0; font-size:18px; font-weight:400; color:rgba(255,255,255,0.85); position:relative; z-index:1; }
+
+  .catchcopy { text-align:center; margin-bottom:50px; padding:20px; }
+  .catchcopy p { font-size:24px; font-weight:700; color:#b85c00; margin:0; line-height:1.6; }
+
+  .section { margin-bottom:50px; }
+  .section-title { font-size:22px; color:#1a1200; border-left:6px solid #e07b1a; padding-left:15px; margin-bottom:30px; font-weight:700; }
+
+  .overview-card { background:#fff; border:1px solid #f0d4b0; border-radius:8px; padding:30px; box-shadow:0 2px 8px rgba(224,123,26,0.07); }
+  .overview-card h3 { color:#1a1200; border-bottom:2px solid #e07b1a; padding-bottom:10px; margin-top:0; font-size:20px; }
+  .overview-card p { font-size:16px; line-height:1.8; color:#2a1a00; margin-bottom:30px; }
+  .overview-card h4 { color:#1a1200; margin-bottom:8px; font-size:17px; }
+  .overview-card ul { font-size:15px; line-height:1.7; color:#2a1a00; padding-left:20px; margin-bottom:0; }
+  .overview-card ul li { margin-bottom:6px; }
+  .purpose-item { margin-bottom:22px; }
+  .purpose-item:last-child { margin-bottom:0; }
+
+  .orm-box { background:#fff8f0; border:1px solid #f0d4b0; border-left:4px solid #e07b1a; border-radius:8px; padding:16px 20px; margin-bottom:28px; }
+  .orm-box p { font-size:14px; color:#2a1a00; margin:0; line-height:1.7; }
+  .orm-box strong { color:#b85c00; }
+
+  .goal-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .goal-card { flex:1; min-width:280px; background:#fff; border:1px solid #f0d4b0; border-top:5px solid #e07b1a; border-radius:4px 4px 8px 8px; padding:25px; box-shadow:0 2px 5px rgba(224,123,26,0.07); }
+  .goal-card h4 { margin-top:0; color:#1a1200; font-size:17px; display:flex; align-items:center; margin-bottom:12px; }
+  .goal-card h4 span { font-size:20px; margin-right:10px; }
+  .goal-card ul { font-size:14px; line-height:1.7; color:#2a1a00; padding-left:20px; margin:0; }
+  .goal-card ul li { margin-bottom:7px; }
+
+  .recommend-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .recommend-card { flex:1; min-width:260px; background:#fff; border:1px solid #f0d4b0; border-radius:8px; padding:25px; box-shadow:0 2px 4px rgba(224,123,26,0.05); }
+  .recommend-card p { font-size:15px; font-weight:700; color:#1a1200; line-height:1.6; margin:0; }
+  .recommend-card p span { color:#b85c00; }
+
+  .prereq-card { background:#fff; border:1px solid #f0d4b0; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(224,123,26,0.07); }
+  .prereq-card h4 { color:#7a3800; margin-top:0; margin-bottom:10px; font-size:17px; border-bottom:1px solid #fae8d0; padding-bottom:8px; }
+  .prereq-card ul { font-size:15px; line-height:1.7; color:#2a1a00; margin-bottom:25px; padding-left:20px; }
+  .prereq-card ul:last-child { margin-bottom:0; }
+  .rec-tag { display:inline-block; font-size:10px; padding:1px 8px; border-radius:20px; background:#FAEEDA; color:#854F0B; font-weight:500; margin-left:6px; vertical-align:middle; }
+
+  .table-wrap { overflow-x:auto; }
+
+  table.curriculum { width:100%; border-collapse:collapse; min-width:700px; line-height:1.6; box-shadow:0 2px 5px rgba(224,123,26,0.08); }
+  table.curriculum thead tr { color:#fff; background:#e07b1a; }
+  table.curriculum thead th { padding:14px 12px; font-weight:700; text-align:left; border:1px solid #b85c00; }
+  table.curriculum thead th:first-child { text-align:center; width:8%; }
+  table.curriculum thead th:nth-child(2) { width:32%; }
+  table.curriculum tbody td { padding:12px; border:1px solid #fae8d0; color:#1a1200; vertical-align:top; font-size:14px; line-height:1.7; }
+  .day-cell { font-weight:700; text-align:center; white-space:nowrap; }
+  .d1 { background:#fae8d0; color:#7a3800; }
+  .d2 { background:#f5d4b0; color:#7a3800; }
+  .d3 { background:#f0c090; color:#7a3800; }
+  .ch-odd  { font-weight:700; background:#fdf3e8; color:#7a3800; }
+  .ch-even { font-weight:700; background:#fff; color:#7a3800; }
+  .co-odd  { background:#fefaf5; }
+  .co-even { background:#fff; }
+
+  table.env-table { width:100%; border-collapse:collapse; min-width:400px; border:1px solid #e07b1a; line-height:1.5; }
+  table.env-table thead tr { background:#e07b1a; color:#fff; }
+  table.env-table thead th { padding:10px; border:1px solid #b85c00; text-align:left; font-weight:700; font-size:14px; }
+  table.env-table tbody td { padding:8px 10px; border:1px solid #fae8d0; font-size:13px; color:#1a1200; }
+  .ev-label { font-weight:700; background:#fae8d0; color:#7a3800; }
+  .ev-odd  { background:#fdf3e8; }
+  .ev-even { background:#fff; }
+
+  .next-step { background:#fff8f0; border:1px solid #f0d4b0; border-radius:8px; padding:20px 24px; margin-top:16px; }
+  .next-step p { font-size:14px; color:#2a1a00; margin:0; line-height:1.7; }
+  .next-step strong { color:#b85c00; }
+
+  .note { font-size:13px; color:#8a6a3a; margin-top:10px; padding-left:4px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>ドメイン駆動設計実践Java編</h1>
+  <h2>設計から実装へ、DDDで学ぶWeb API開発</h2>
+</div>
+
+<div class="catchcopy">
+  <p>Javaで学ぶ、ドメイン駆動設計の実践。</p>
+</div>
+
+<div style="font-family:'Segoe UI',sans-serif; color:#1a1200;">
+
+  <!-- 研修概要 -->
+  <div class="section">
+    <h2 class="section-title">研修概要</h2>
+    <div class="overview-card">
+
+      <div class="orm-box">
+        <p>🔑 <strong>jOOQ・MyBatis・Spring JPAのいずれにも対応</strong><br>
+        Repositoryパターンと依存性逆転の原則（DIP）によりインフラストラクチャ層を抽象化。顧客の既存技術スタックに合わせてORMを選択できます。</p>
+      </div>
+
+      <h3>■ 本研修について</h3>
+      <p>本研修は、ソフトウェア設計の基本思想からドメイン駆動設計（DDD）の完全実装まで、分析・設計・実装を一貫して体験するJava実践プログラムです。<br><br>
+      SOLID原則・GoF23パターン・エンタープライズパターンを設計の土台として習得した上で、ロバストネス分析によるユビキタス言語の定義・概念ドメインモデルの構築・4層アーキテクチャ（ドメイン層・インフラストラクチャ層・アプリケーション層・プレゼンテーション層）の設計と実装を一貫して体験します。<br><br>
+      インフラストラクチャ層はRepositoryパターンとDIPにより抽象化されており、jOOQ・MyBatis・Spring JPAのいずれにも対応可能な設計になっています。顧客の既存技術スタックに合わせた柔軟な提供が可能です。</p>
+
+      <h3>■ 本研修の3つの目的</h3>
+      <p style="margin-bottom:16px;">本研修では、以下の3つを習得することを目的としています。</p>
+      <div class="purpose-item">
+        <h4>1. 「なぜその設計か」を根拠から説明できるようになる</h4>
+        <p>SOLID原則・GoF23パターン・DDDパターンをDDDの実装と連結して理解し、設計の意図をチームに言語化して伝えられるエンジニアになる。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>2. DDDの設計プロセス全体を自走して実践できるようになる</h4>
+        <p>ロバストネス分析から実装まで、DDDの全プロセスを自分の手で体験することで、現場のプロジェクトに即座に適用できる実践力を身につける。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>3. どのORMを使っていても通用する設計力を習得する</h4>
+        <p>Repositoryパターン・DIPの理解により、jOOQ・MyBatis・Spring JPAのいずれのプロジェクトでも、DDDの設計思想を適用できるようになる。</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 到達目標 -->
+  <div class="section">
+    <h2 class="section-title">到達目標（受講後に身につくスキル）</h2>
+    <div class="goal-grid">
+
+      <div class="goal-card">
+        <h4><span>📐</span>設計原則・パターン</h4>
+        <ul>
+          <li>SOLID原則をDDDの実装と対応づけて説明・適用できる</li>
+          <li>GoF23パターン・エンタープライズパターンをDDDの各層設計で活用できる</li>
+          <li>設計の意図をチームに言語化して伝えられる</li>
+        </ul>
+      </div>
+
+      <div class="goal-card">
+        <h4><span>🔍</span>分析・設計プロセス</h4>
+        <ul>
+          <li>ロバストネス分析によりユビキタス言語を定義し、概念ドメインモデルを構築できる</li>
+          <li>4層アーキテクチャを設計し、各層の責務と依存関係を正しく設計できる</li>
+        </ul>
+      </div>
+
+      <div class="goal-card">
+        <h4><span>⚙️</span>DDD実装</h4>
+        <ul>
+          <li>Value Object・Entity・Aggregate・Repository・Mapperをドメイン層に実装できる</li>
+          <li>DTO・Usecase・Service・Mapper/Assemblerをアプリケーション層に実装できる</li>
+          <li>Controller・Schema・ExceptionHandlerをプレゼンテーション層に実装できる</li>
+        </ul>
+      </div>
+
+      <div class="goal-card">
+        <h4><span>🔄</span>ORM対応力</h4>
+        <ul>
+          <li>Repositoryパターン・DIPによりjOOQ・MyBatis・Spring JPAのいずれにも対応できる設計を実装できる</li>
+          <li>ORMを差し替えてもドメイン層・アプリケーション層に影響が出ない理由を説明できる</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- こんな企業にお勧め -->
+  <div class="section">
+    <h2 class="section-title">こんな企業にお勧めします</h2>
+    <div class="recommend-grid">
+      <div class="recommend-card"><p>Javaで開発しているが、<span>設計の属人化・技術負債</span>が課題になっている</p></div>
+      <div class="recommend-card"><p>DDDを導入したいが、<span>概念の理解と実装のギャップ</span>が埋まらないでいる</p></div>
+      <div class="recommend-card"><p>jOOQ・MyBatis・Spring JPAなど<span>ORMが異なる環境でもDDDを統一設計</span>したい</p></div>
+      <div class="recommend-card"><p><span>アーキテクト・テックリードを育成</span>し、設計の意図をチーム全体に浸透させたい</p></div>
+    </div>
+
+    <div class="next-step">
+      <p>📌 本研修は <strong>C# REST API開発コース</strong> と設計思想を共有しています。<br>
+      言語は異なりますが、DDD・SOLID・Repository・DIPという設計の本質は共通です。
+      JavaチームとC#チームが<strong>同じ設計語彙でコミュニケーション</strong>できる環境を構築できます。</p>
+    </div>
+  </div>
+
+  <!-- カリキュラム -->
+  <div class="section">
+    <h2 class="section-title">カリキュラム詳細（全3日間）</h2>
+    <div class="table-wrap">
+      <table class="curriculum">
+        <thead>
+          <tr>
+            <th style="text-align:center;">日程</th>
+            <th>章・学習テーマ</th>
+            <th>学習内容・習得スキル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="day-cell d1" rowspan="3">1日目</td>
+            <td class="ch-odd">第1章：ソフトウェア設計の基本思想</td>
+            <td class="co-odd">モジュール化・関心の分離・カプセル化・抽象化・高凝集・疎結合を理解し、DDDの設計思想の土台を築く。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第2章：設計原則とデザインパターン</td>
+            <td class="co-even">SOLID原則・GoF23パターン・エンタープライズパターンをDDDの各層設計と対応づけて習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第3章：設計プロセス（分析フェーズ）</td>
+            <td class="co-odd">ロバストネス分析によるユビキタス言語の定義・概念ドメインモデルの構築・モデルコミュニケーションを実践する。</td>
+          </tr>
+          <tr>
+            <td class="day-cell d2" rowspan="2">2日目</td>
+            <td class="ch-even">第3章：設計プロセス（設計フェーズ）＋第4章：ドメイン層の設計</td>
+            <td class="co-even">4層アーキテクチャへの展開・Value Object・Entity・Aggregate・Repositoryインターフェイス・Mapperインターフェイス・DIPを実装する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第5章：インフラストラクチャ層の設計</td>
+            <td class="co-odd">MapperImpl・RepositoryImplを実装し、jOOQ・MyBatis・Spring JPAのいずれにも対応できるRepositoryパターンによる抽象化を体得する。</td>
+          </tr>
+          <tr>
+            <td class="day-cell d3" rowspan="2">3日目</td>
+            <td class="ch-even">第6章：アプリケーション層の設計</td>
+            <td class="co-even">Service・DTO・Usecase（Interactor）・Mapper/Assemblerを実装し、ビジネスロジックの組み立てと各層連携を実践する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第7章：プレゼンテーション層の設計</td>
+            <td class="co-odd">Controller・Schema・ExceptionHandlerを実装し、REST APIとして4層アーキテクチャを完成させる。Schema→DTO→Entity→Recordの変換レイヤーを実装し、全体を統合する。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">※ 各章末に演習を実施します。3日目は4層アーキテクチャの総合演習として位置づけます。</p>
+  </div>
+
+  <!-- 前提知識 -->
+  <div class="section">
+    <h2 class="section-title">受講にあたっての前提知識</h2>
+    <div class="prereq-card">
+
+      <h4>プログラミングの基礎知識</h4>
+      <ul>
+        <li>Javaを用いた基本的なプログラミング（変数・条件分岐・ループ・クラス・メソッド）ができること。</li>
+        <li>オブジェクト指向プログラミング（クラス・インターフェイス・継承・ポリモーフィズム）の基本を理解していること。</li>
+        <li>例外処理（try-catch・カスタム例外）の基本を理解していること。</li>
+      </ul>
+
+      <h4>Web・APIの基礎知識</h4>
+      <ul>
+        <li>HTTPリクエスト・レスポンスの基本概念（GET・POST・PUT・DELETE・ステータスコード）を理解していること。</li>
+        <li>REST APIの基本概念（エンドポイント・JSONデータ）を理解していること。</li>
+      </ul>
+
+      <h4>データベースの基礎知識</h4>
+      <ul>
+        <li>リレーショナルデータベース（テーブル・主キー・外部キー）の基本概念を理解していること。</li>
+        <li>SQLによる基本的なCRUD操作（SELECT・INSERT・UPDATE・DELETE）ができること。</li>
+      </ul>
+
+      <h4>あると望ましい知識 <span class="rec-tag">推奨</span></h4>
+      <ul>
+        <li>Spring Boot（DIコンテナ・Bean定義・アノテーション）の基礎知識。</li>
+        <li>jOOQ・MyBatis・Spring JPAのいずれかの使用経験（操作経験は不要）。</li>
+        <li>GitHubを使ったリポジトリのクローン・プッシュなど基本的な操作ができること。</li>
+      </ul>
+
+    </div>
+  </div>
+
+  <!-- 必要な受講環境 -->
+  <div class="section">
+    <h2 class="section-title">必要な受講環境</h2>
+    <div class="table-wrap">
+      <table class="env-table">
+        <thead>
+          <tr><th style="width:20%;">区分</th><th style="width:40%;">環境 / ツール</th><th>役割・用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="ev-label">OS</td><td class="ev-odd">Windows 11 / macOS</td><td class="ev-odd">研修用PCの基本環境</td></tr>
+          <tr><td class="ev-label">IDE</td><td class="ev-even">IntelliJ IDEA（Community版以上）</td><td class="ev-even">Javaコード編集・デバッグ・ビルド</td></tr>
+          <tr><td class="ev-label">JDK</td><td class="ev-odd">Java 21 LTS</td><td class="ev-odd">Javaアプリケーションの実行環境</td></tr>
+          <tr><td class="ev-label">フレームワーク</td><td class="ev-even">Spring Boot 4.x</td><td class="ev-even">REST APIアプリケーションの構築基盤</td></tr>
+          <tr><td class="ev-label">ビルドツール</td><td class="ev-odd">Gradle</td><td class="ev-odd">依存関係管理・ビルド・実行</td></tr>
+          <tr><td class="ev-label">OR Mapper</td><td class="ev-even">jOOQ / MyBatis / Spring JPA</td><td class="ev-even">データベースアクセス実装（顧客環境に合わせて選択）</td></tr>
+          <tr><td class="ev-label">RDBMS</td><td class="ev-odd">PostgreSQL</td><td class="ev-odd">演習アプリのデータベース</td></tr>
+          <tr><td class="ev-label">バージョン管理</td><td class="ev-even">GitHub（アカウント）</td><td class="ev-even">演習リポジトリの取得・管理</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">※ ORMはjOOQ・MyBatis・Spring JPAのいずれにも対応しています。顧客環境に合わせて選択できます。</p>
+  </div>
+
+</div>
+</body>
+</html>

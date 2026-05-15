@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Next.js & React フロントエンド開発</title>
+<style>
+  body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; color: #1a1a2e; margin: 0; padding: 20px; background: #f5f0fb; }
+  * { box-sizing: border-box; }
+
+  .hero {
+    text-align: center; padding: 48px 24px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+    color: #fff; border-radius: 8px; margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(26,26,46,0.4); position: relative; overflow: hidden;
+  }
+  .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:240px; height:240px; border-radius:50%; background:rgba(228,77,38,0.15); }
+  .hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(97,218,251,0.08); }
+  .hero h1 { margin:0 0 10px; font-size:32px; font-weight:700; color:#fff; position:relative; z-index:1; }
+  .hero h2 { margin:0; font-size:18px; font-weight:400; color:rgba(255,255,255,0.82); position:relative; z-index:1; }
+
+  .catchcopy { text-align:center; margin-bottom:50px; padding:20px; }
+  .catchcopy p { font-size:24px; font-weight:700; color:#e44d26; margin:0; line-height:1.6; }
+
+  .section { margin-bottom:50px; }
+  .section-title { font-size:22px; color:#1a1a2e; border-left:6px solid #e44d26; padding-left:15px; margin-bottom:30px; font-weight:700; }
+
+  .overview-card { background:#fff; border:1px solid #e8d5cc; border-radius:8px; padding:30px; box-shadow:0 2px 8px rgba(228,77,38,0.07); }
+  .overview-card h3 { color:#1a1a2e; border-bottom:2px solid #e44d26; padding-bottom:10px; margin-top:0; font-size:20px; }
+  .overview-card p { font-size:16px; line-height:1.8; color:#2a2a4a; margin-bottom:30px; }
+  .overview-card h4 { color:#1a1a2e; margin-bottom:8px; font-size:17px; }
+  .overview-card ul { font-size:15px; line-height:1.7; color:#2a2a4a; padding-left:20px; margin-bottom:0; }
+  .overview-card ul li { margin-bottom:6px; }
+  .purpose-item { margin-bottom:22px; }
+  .purpose-item:last-child { margin-bottom:0; }
+
+  .goal-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .goal-card { flex:1; min-width:280px; background:#fff; border:1px solid #e8d5cc; border-top:5px solid #e44d26; border-radius:4px 4px 8px 8px; padding:25px; box-shadow:0 2px 5px rgba(228,77,38,0.07); }
+  .goal-card h4 { margin-top:0; color:#1a1a2e; font-size:17px; display:flex; align-items:center; margin-bottom:12px; }
+  .goal-card h4 span { font-size:20px; margin-right:10px; }
+  .goal-card ul { font-size:14px; line-height:1.7; color:#2a2a4a; padding-left:20px; margin:0; }
+  .goal-card ul li { margin-bottom:7px; }
+
+  .recommend-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .recommend-card { flex:1; min-width:260px; background:#fff; border:1px solid #e8d5cc; border-radius:8px; padding:25px; box-shadow:0 2px 4px rgba(228,77,38,0.05); }
+  .recommend-card p { font-size:15px; font-weight:700; color:#1a1a2e; line-height:1.6; margin:0; }
+  .recommend-card p span { color:#e44d26; }
+
+  .prereq-card { background:#fff; border:1px solid #e8d5cc; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(228,77,38,0.07); }
+  .prereq-card h4 { color:#b33d1e; margin-top:0; margin-bottom:10px; font-size:17px; border-bottom:1px solid #f5e8e4; padding-bottom:8px; }
+  .prereq-card ul { font-size:15px; line-height:1.7; color:#2a2a4a; margin-bottom:25px; padding-left:20px; }
+  .prereq-card ul:last-child { margin-bottom:0; }
+
+  .table-wrap { overflow-x:auto; }
+
+  table.curriculum { width:100%; border-collapse:collapse; min-width:700px; line-height:1.6; box-shadow:0 2px 5px rgba(228,77,38,0.08); }
+  table.curriculum thead tr { color:#fff; background:#e44d26; }
+  table.curriculum thead th { padding:14px 12px; font-weight:700; text-align:left; border:1px solid #b33d1e; }
+  table.curriculum thead th:first-child { text-align:center; width:8%; }
+  table.curriculum thead th:nth-child(2) { width:30%; }
+  table.curriculum tbody td { padding:12px; border:1px solid #f5e8e4; color:#1a1a2e; vertical-align:top; font-size:14px; line-height:1.7; }
+  .day-cell { font-weight:700; text-align:center; white-space:nowrap; }
+  .d1 { background:#fae8e4; color:#b33d1e; }
+  .d2 { background:#f5d5cc; color:#b33d1e; }
+  .ch-odd  { font-weight:700; background:#fdf2f0; color:#b33d1e; }
+  .ch-even { font-weight:700; background:#fff; color:#b33d1e; }
+  .co-odd  { background:#fef8f7; }
+  .co-even { background:#fff; }
+
+  table.env-table { width:100%; border-collapse:collapse; min-width:400px; border:1px solid #e44d26; line-height:1.5; }
+  table.env-table thead tr { background:#e44d26; color:#fff; }
+  table.env-table thead th { padding:10px; border:1px solid #b33d1e; text-align:left; font-weight:700; font-size:14px; }
+  table.env-table tbody td { padding:8px 10px; border:1px solid #f5e8e4; font-size:13px; color:#1a1a2e; }
+  .ev-label { font-weight:700; background:#fae8e4; color:#b33d1e; }
+  .ev-odd  { background:#fdf2f0; }
+  .ev-even { background:#fff; }
+
+  .next-step { background:#fdf2f0; border:1px solid #e8d5cc; border-radius:8px; padding:20px 24px; margin-top:16px; }
+  .next-step p { font-size:14px; color:#2a2a4a; margin:0; line-height:1.7; }
+  .next-step strong { color:#e44d26; }
+
+  .note { font-size:13px; color:#8a6a5a; margin-top:10px; padding-left:4px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Next.js & React フロントエンド開発</h1>
+  <h2>TypeScriptで学ぶ、モダンUI構築</h2>
+</div>
+
+<div class="catchcopy">
+  <p>Next.js & Reactで学ぶ、モダンUIの設計と実装。</p>
+</div>
+
+<div style="font-family:'Segoe UI',sans-serif; color:#1a1a2e;">
+
+  <!-- 研修概要 -->
+  <div class="section">
+    <h2 class="section-title">研修概要</h2>
+    <div class="overview-card">
+
+      <h3>■ 本研修について</h3>
+      <p>「Reactは触ったことがあるけど、実務レベルの開発には自信がない」——そんな課題を解消するために設計されたのが本研修です。<br><br>
+      Next.js App Router・shadcn/ui・NextAuth.js・BFF・InversifyJSという最新スタックを使い、コンポーネント設計から認証・デプロイまでを実際の現場と同等の構成で体験します。DIコンテナとレイヤードアーキテクチャにより保守性の高いコード設計も習得します。<br><br>
+      本研修を通じて、モダンなフロントエンド開発の設計と実装を身につけることを目指します。</p>
+
+      <h3>■ 本研修の3つの目的</h3>
+      <p style="margin-bottom:16px;">本研修では、以下の3つを習得することを目的としています。</p>
+      <div class="purpose-item">
+        <h4>1. モダンなUIを設計・実装できるようになる</h4>
+        <p>TypeScript・shadcn/ui・App Routerを活用し、Server/Client Componentを使い分けながら高品質なUIを構築できるようになる。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>2. セキュアなWebアプリを設計できるようになる</h4>
+        <p>NextAuth.jsによる認証・BFFによる安全なデータ通信・DIコンテナによるクリーンな設計を実装し、実務レベルのWebアプリを構築できるようになる。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>3. 運用環境まで自走してデプロイできるようになる</h4>
+        <p>Nginx・PM2を使ったLinux環境の構成を習得し、開発したアプリを運用環境まで届けられるエンジニアを目指す。</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 到達目標 -->
+  <div class="section">
+    <h2 class="section-title">到達目標（受講後に身につくスキル）</h2>
+    <div class="goal-grid">
+
+      <div class="goal-card">
+        <h4><span>🎨</span>UI構築・コンポーネント設計</h4>
+        <ul>
+          <li>TypeScript・shadcn/uiを使った高品質なUIコンポーネントを設計・実装できる</li>
+          <li>Next.js App RouterのServer/Client Componentを適切に使い分けられる</li>
+        </ul>
+      </div>
+
+      <div class="goal-card">
+        <h4><span>🏗️</span>設計・認証・API連携</h4>
+        <ul>
+          <li>DIコンテナ・BFF・レイヤードアーキテクチャによる保守性の高いフロントエンドを設計できる</li>
+          <li>NextAuth.jsによる認証・ミドルウェアによるルートガードを実装できる</li>
+          <li>fetch APIを使ったREST APIとのデータ通信・フォーム処理を実装できる</li>
+        </ul>
+      </div>
+
+      <div class="goal-card">
+        <h4><span>🚀</span>デプロイ・運用</h4>
+        <ul>
+          <li>Nginx・PM2を使ったLinux運用環境を構成し、アプリをデプロイできる</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- こんな企業にお勧め -->
+  <div class="section">
+    <h2 class="section-title">こんな企業にお勧めします</h2>
+    <div class="recommend-grid">
+      <div class="recommend-card"><p>Next.js・Reactによる<span>モダンなフロントエンド開発力</span>をチームに定着させたい</p></div>
+      <div class="recommend-card"><p>設計・認証・デプロイまで含めた<span>実務レベルのフロントエンドエンジニア</span>を育成したい</p></div>
+      <div class="recommend-card"><p>TypeScript基礎・C# REST API開発との組み合わせで<span>フルスタック人材</span>を育てたい</p></div>
+      <div class="recommend-card"><p>自社サービスのフロントエンドを<span>内製化・モダン化</span>したい</p></div>
+    </div>
+
+    <div class="next-step">
+      <p>📌 本研修は<strong>TypeScript基礎</strong>の次のステップとして設計されています。<br>
+      <strong>C# REST API開発コース</strong>で学んだバックエンドAPIと組み合わせることで、フロントエンドからバックエンドまでを一貫して担える<strong>フルスタックエンジニア</strong>を目指せます。</p>
+    </div>
+  </div>
+
+  <!-- カリキュラム -->
+  <div class="section">
+    <h2 class="section-title">カリキュラム詳細（全2日間）</h2>
+    <div class="table-wrap">
+      <table class="curriculum">
+        <thead>
+          <tr>
+            <th style="text-align:center;">日程</th>
+            <th>章・学習テーマ</th>
+            <th>学習内容・習得スキル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="day-cell d1" rowspan="5">1日目</td>
+            <td class="ch-odd">第1章：Next.jsとReact JSの概要</td>
+            <td class="co-odd">Next.jsとReactの関係・App Router・SSR/CSR/SSGの違い・SPAの基本構造を理解する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第2章：環境構築とプロジェクト作成</td>
+            <td class="co-even">Node.js・Next.jsのセットアップ・プロジェクト作成・開発サーバーの起動・ディレクトリ構造・InversifyJSの導入を実践する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第3章：Reactコンポーネントとページ作成</td>
+            <td class="co-odd">Reactコンポーネントの基本構造・TSX・App Routerによる画面構成・Props受け渡しを実装する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第4章：StateとUIコンポーネントの作成</td>
+            <td class="co-even">クライアントコンポーネント・Stateによるデータ管理・各種UIコンポーネント・リスト表示を実装する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第5章：shadcn/uiを用いたモダンUI開発</td>
+            <td class="co-odd">shadcn/uiのセットアップ・基本/フォーム/一覧/画像/ナビゲーションコンポーネントを活用し、高品質なUIを構築する。</td>
+          </tr>
+          <tr>
+            <td class="day-cell d2" rowspan="4">2日目</td>
+            <td class="ch-even">第6章：バックエンドAPIとの連携とデータ通信</td>
+            <td class="co-even">REST API・fetch API・アーキテクチャ設計・DIコンテナによる依存性注入を実装する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第7章：認証機能（NextAuth.js）</td>
+            <td class="co-odd">NextAuth.js（Auth.js）の導入・ログイン/ログアウトUI・ミドルウェアによるルートガードを実装する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第8章：フォーム処理とAPIデータ連携</td>
+            <td class="co-even">BFF（APIプロキシ）の導入・ユーザー登録・商品検索・商品登録機能を実装する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第9章：リリースとデプロイ</td>
+            <td class="co-odd">リリース版のビルド・Nginx・PM2を用いた運用環境の構成とデプロイを実践する。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">※ 各章末に演習を実施します。</p>
+    <p class="note">※ 2日目はAPI連携・認証・BFF・デプロイの実務直結内容に集中します。</p>
+  </div>
+
+  <!-- 前提知識 -->
+  <div class="section">
+    <h2 class="section-title">受講にあたっての前提知識</h2>
+    <div class="prereq-card">
+
+      <h4>TypeScriptの基礎知識</h4>
+      <ul>
+        <li>変数・型・関数・クラス・インターフェイスなどの基本構文を理解していること。</li>
+        <li>アロー関数・async/await・スプレッド構文・分割代入を使えること。</li>
+      </ul>
+
+      <h4>Web・ネットワークの基礎知識</h4>
+      <ul>
+        <li>HTTPリクエスト・レスポンスの基本概念とREST APIの基本を理解していること。</li>
+        <li>HTMLの基本的な読み書きができること。</li>
+      </ul>
+
+      <h4>基本的なPC・OS操作</h4>
+      <ul>
+        <li>Visual Studio Codeを使ったコード編集・ターミナル操作ができること。</li>
+        <li>WSL2（Ubuntu）環境での基本的なコマンド入力ができること。</li>
+      </ul>
+
+    </div>
+  </div>
+
+  <!-- 必要な受講環境 -->
+  <div class="section">
+    <h2 class="section-title">必要な受講環境</h2>
+    <div class="table-wrap">
+      <table class="env-table">
+        <thead>
+          <tr><th style="width:20%;">区分</th><th style="width:40%;">環境 / ツール</th><th>役割・用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="ev-label">ホストOS</td><td class="ev-odd">Windows 11</td><td class="ev-odd">研修用PCの基本環境</td></tr>
+          <tr><td class="ev-label">IDE</td><td class="ev-even">Visual Studio Code</td><td class="ev-even">コード編集・ターミナル操作・デバッグ</td></tr>
+          <tr><td class="ev-label">実行環境</td><td class="ev-odd">WSL2（Ubuntu 24.04）</td><td class="ev-odd">Linux環境でのアプリケーション実行・デプロイ演習</td></tr>
+          <tr><td class="ev-label">ランタイム</td><td class="ev-even">Node.js v24.14.0</td><td class="ev-even">Next.js・Reactの実行環境・npmパッケージ管理</td></tr>
+          <tr><td class="ev-label">フレームワーク</td><td class="ev-odd">Next.js v16.2.1 / React.js v19.2.4</td><td class="ev-odd">フロントエンド開発・App Router・コンポーネント構築</td></tr>
+          <tr><td class="ev-label">DIコンテナ</td><td class="ev-even">InversifyJS v8.1.0</td><td class="ev-even">依存性注入・レイヤードアーキテクチャの実装</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-odd">GitHub Pull Requests</td><td class="ev-odd">GitHubとの連携・演習解答リポジトリの参照</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">※ 演習解答はGitHubリポジトリで提供します。事前にGitHubアカウントを作成しておいてください。</p>
+  </div>
+
+</div>
+</body>
+</html>

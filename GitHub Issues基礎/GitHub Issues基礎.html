@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Issues基礎</title>
+<style>
+  body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; color: #1a1030; margin: 0; padding: 20px; background: #f4f0fb; }
+  * { box-sizing: border-box; }
+
+  .hero {
+    text-align: center; padding: 48px 24px;
+    background: linear-gradient(135deg, #2d1b69 0%, #4a2c9e 60%, #6e40c9 100%);
+    color: #fff; border-radius: 8px; margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(110,64,201,0.35); position: relative; overflow: hidden;
+  }
+  .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:240px; height:240px; border-radius:50%; background:rgba(255,255,255,0.06); }
+  .hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.04); }
+  .hero h1 { margin:0 0 10px; font-size:32px; font-weight:700; color:#fff; position:relative; z-index:1; }
+  .hero h2 { margin:0; font-size:18px; font-weight:400; color:rgba(255,255,255,0.85); position:relative; z-index:1; }
+
+  .catchcopy { text-align:center; margin-bottom:50px; padding:20px; }
+  .catchcopy p { font-size:24px; font-weight:700; color:#6e40c9; margin:0; line-height:1.6; }
+
+  .section { margin-bottom:50px; }
+  .section-title { font-size:22px; color:#1a1030; border-left:6px solid #6e40c9; padding-left:15px; margin-bottom:30px; font-weight:700; }
+
+  .overview-card { background:#fff; border:1px solid #d4c5f0; border-radius:8px; padding:30px; box-shadow:0 2px 8px rgba(110,64,201,0.07); }
+  .overview-card h3 { color:#1a1030; border-bottom:2px solid #6e40c9; padding-bottom:10px; margin-top:0; font-size:20px; }
+  .overview-card p { font-size:16px; line-height:1.8; color:#2a1a4a; margin-bottom:30px; }
+  .overview-card h4 { color:#1a1030; margin-bottom:8px; font-size:17px; }
+  .overview-card ul { font-size:15px; line-height:1.7; color:#2a1a4a; padding-left:20px; margin-bottom:0; }
+  .overview-card ul li { margin-bottom:6px; }
+  .purpose-item { margin-bottom:22px; }
+  .purpose-item:last-child { margin-bottom:0; }
+
+  .ssot-box { background:#f0eafb; border:1px solid #d4c5f0; border-left:4px solid #6e40c9; border-radius:8px; padding:16px 20px; margin-bottom:28px; }
+  .ssot-box p { font-size:14px; color:#2a1a4a; margin:0; line-height:1.7; }
+  .ssot-box strong { color:#6e40c9; }
+
+  .goal-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .goal-card { flex:1; min-width:280px; background:#fff; border:1px solid #d4c5f0; border-top:5px solid #6e40c9; border-radius:4px 4px 8px 8px; padding:25px; box-shadow:0 2px 5px rgba(110,64,201,0.07); }
+  .goal-card h4 { margin-top:0; color:#1a1030; font-size:17px; display:flex; align-items:center; margin-bottom:12px; }
+  .goal-card h4 span { font-size:20px; margin-right:10px; }
+  .goal-card ul { font-size:14px; line-height:1.7; color:#2a1a4a; padding-left:20px; margin:0; }
+  .goal-card ul li { margin-bottom:7px; }
+
+  .recommend-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .recommend-card { flex:1; min-width:260px; background:#fff; border:1px solid #d4c5f0; border-radius:8px; padding:25px; box-shadow:0 2px 4px rgba(110,64,201,0.05); }
+  .recommend-card p { font-size:15px; font-weight:700; color:#1a1030; line-height:1.6; margin:0; }
+  .recommend-card p span { color:#6e40c9; }
+
+  .prereq-card { background:#fff; border:1px solid #d4c5f0; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(110,64,201,0.07); }
+  .prereq-card h4 { color:#4a2c9e; margin-top:0; margin-bottom:10px; font-size:17px; border-bottom:1px solid #e8dff8; padding-bottom:8px; }
+  .prereq-card ul { font-size:15px; line-height:1.7; color:#2a1a4a; margin-bottom:25px; padding-left:20px; }
+  .prereq-card ul:last-child { margin-bottom:0; }
+
+  .table-wrap { overflow-x:auto; }
+
+  table.curriculum { width:100%; border-collapse:collapse; min-width:700px; line-height:1.6; box-shadow:0 2px 5px rgba(110,64,201,0.08); }
+  table.curriculum thead tr { color:#fff; background:#6e40c9; }
+  table.curriculum thead th { padding:14px 12px; font-weight:700; text-align:left; border:1px solid #4a2c9e; }
+  table.curriculum thead th:first-child { text-align:center; width:8%; }
+  table.curriculum thead th:nth-child(2) { width:30%; }
+  table.curriculum tbody td { padding:12px; border:1px solid #e8dff8; color:#1a1030; vertical-align:top; font-size:14px; line-height:1.7; }
+  .day-cell { font-weight:700; text-align:center; white-space:nowrap; }
+  .d1 { background:#e8dff8; color:#4a2c9e; }
+  .ch-odd  { font-weight:700; background:#f4f0fb; color:#4a2c9e; }
+  .ch-even { font-weight:700; background:#fff; color:#4a2c9e; }
+  .co-odd  { background:#faf8fe; }
+  .co-even { background:#fff; }
+
+  table.env-table { width:100%; border-collapse:collapse; min-width:400px; border:1px solid #6e40c9; line-height:1.5; }
+  table.env-table thead tr { background:#6e40c9; color:#fff; }
+  table.env-table thead th { padding:10px; border:1px solid #4a2c9e; text-align:left; font-weight:700; font-size:14px; }
+  table.env-table tbody td { padding:8px 10px; border:1px solid #e8dff8; font-size:13px; color:#1a1030; }
+  .ev-label { font-weight:700; background:#e8dff8; color:#4a2c9e; }
+  .ev-odd  { background:#f4f0fb; }
+  .ev-even { background:#fff; }
+
+  .next-step { background:#f4f0fb; border:1px solid #d4c5f0; border-radius:8px; padding:20px 24px; margin-top:16px; }
+  .next-step p { font-size:14px; color:#2a1a4a; margin:0; line-height:1.7; }
+  .next-step strong { color:#6e40c9; }
+
+  .cycle-box { background:#fff; border:1px solid #d4c5f0; border-radius:8px; padding:20px 24px; margin-bottom:20px; }
+  .cycle-box p { font-size:13px; color:#2a1a4a; margin:0; line-height:2; font-family: monospace; }
+
+  .note { font-size:13px; color:#7a5a9a; margin-top:10px; padding-left:4px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>GitHub Issues基礎</h1>
+  <h2>開発サイクルを繋ぎ、チームの思考を同期する</h2>
+</div>
+
+<div class="catchcopy">
+  <p>タスク管理ツールではなく、開発の司令塔として使う。</p>
+</div>
+
+<div style="font-family:'Segoe UI',sans-serif; color:#1a1030;">
+
+  <!-- 研修概要 -->
+  <div class="section">
+    <h2 class="section-title">研修概要</h2>
+    <div class="overview-card">
+
+      <div class="ssot-box">
+        <p>🔑 <strong>GitHub IssuesをSSOT（唯一の真実）として活用する</strong><br>
+        Issues・Repository・Actionsが連動する循環サイクルの「起点」として機能させることで、チームの思考を同期させ、透明性の高い自律的な開発サイクルを構築します。</p>
+      </div>
+
+      <h3>■ 本研修について</h3>
+      <p>本研修は、GitHub IssuesをSSOT（唯一の真実）として活用し、開発サイクルの「司令塔」として機能させる方法を体系的に学ぶプログラムです。<br><br>
+      GitHub Issues・Repository・Actionsが連動する循環サイクルを理解した上で、ラベル・担当者・マイルストーンによるIssue管理・YAMLテンプレートによる報告の標準化・GitHub Actionsとのイベントドリブンな連携を実践します。<br><br>
+      「なぜそのコードが必要なのか」というWhyをIssueに記録し、チームの思考を同期させることで、透明性が高く自律的な開発サイクルを構築する力を身につけます。</p>
+
+      <h3>■ 本研修の3つの目的</h3>
+      <p style="margin-bottom:16px;">本研修では、以下の3つを習得することを目的としています。</p>
+      <div class="purpose-item">
+        <h4>1. GitHub IssuesをSSOTとして活用できるようになる</h4>
+        <p>Issues・Repository・Actionsが連動する循環サイクルを理解し、なぜIssueが開発の起点（Why）になるのかを説明できるようになる。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>2. ラベル・テンプレートによるIssue管理を標準化できるようになる</h4>
+        <p>ラベル・担当者・マイルストーンの3つの属性を使いこなし、YAML形式のIssueテンプレートを定義・配置して、報告の質を均一化できるようになる。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>3. GitHub Actionsとのイベントドリブンな連携を構築できるようになる</h4>
+        <p>Issueイベントをトリガーにしたワークフローを実装し、自動応答・動的制御による開発サイクルの自動化を実現できるようになる。</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 到達目標 -->
+  <div class="section">
+    <h2 class="section-title">到達目標（受講後に身につくスキル）</h2>
+    <div class="goal-grid">
+
+      <div class="goal-card">
+        <h4><span>🔄</span>GitHubエコシステムの理解</h4>
+        <ul>
+          <li>Issues・Repository・Actionsの循環サイクルを説明できる</li>
+          <li>なぜIssueが開発の起点（Why）になるのかをエンジニア・マネージャー・組織それぞれの視点で説明できる</li>
+        </ul>
+      </div>
+
+      <div class="goal-card">
+        <h4><span>📋</span>Issue管理・標準化</h4>
+        <ul>
+          <li>ラベル・担当者・マイルストーンでIssueのライフサイクルを管理できる</li>
+          <li>YAML形式のIssueテンプレートを定義・配置し、チームの報告品質を均一化できる</li>
+          <li>自由記述による非構造化の弊害を防ぎ、ナレッジを資産化できる</li>
+        </ul>
+      </div>
+
+      <div class="goal-card">
+        <h4><span>⚙️</span>GitHub Actions連携・自動化</h4>
+        <ul>
+          <li>IssueイベントをトリガーにGitHub Actionsワークフローを起動できる</li>
+          <li>自動応答・動的制御による開発サイクルの自動化を実装できる</li>
+          <li>IssueのステータスをActionsで自動更新し、開発サイクルの停滞を防ぐ仕組みを構築できる</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- こんな企業にお勧め -->
+  <div class="section">
+    <h2 class="section-title">こんな企業にお勧めします</h2>
+    <div class="recommend-grid">
+      <div class="recommend-card"><p>DevOpsの思想を組織に根づかせ、<span>Issues→Repository→Actionsの完全な開発サイクル</span>を自動化したい</p></div>
+      <div class="recommend-card"><p>GitHub Actionsハンズオンと組み合わせて、<span>IssueドリブンなCI/CDパイプライン</span>を整備したい</p></div>
+      <div class="recommend-card"><p>開発の「なぜ」をコードに同期させ、<span>チームの思考が自然に揃う組織文化</span>をつくりたい</p></div>
+    </div>
+
+    <div class="next-step">
+      <p>📌 本研修は <strong>Git/GitHubソースコード管理入門</strong> の次のステップとして設計されています。<br>
+      <strong>GitHub Actionsハンズオン</strong> と組み合わせることで、IssueをトリガーにしたCI/CDパイプラインまで一貫して構築できます。</p>
+    </div>
+  </div>
+
+  <!-- カリキュラム -->
+  <div class="section">
+    <h2 class="section-title">カリキュラム詳細（全1日間）</h2>
+    <div class="table-wrap">
+      <table class="curriculum">
+        <thead>
+          <tr>
+            <th style="text-align:center;">日程</th>
+            <th>章・学習テーマ</th>
+            <th>学習内容・習得スキル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="day-cell d1" rowspan="4">1日間</td>
+            <td class="ch-odd">第1章：GitHub Issuesとエコシステム</td>
+            <td class="co-odd">GitHub Issuesの概要（タスク管理・バグ報告・ディスカッション）・Issues/Repository/Actionsが連動する循環サイクル（Why→How→Verify→Feedback）・GitHubエコシステムがもたらすエンジニア・ステークホルダー・組織それぞれへのメリットを理解する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第2章：Issuesの導入と運用手続き</td>
+            <td class="co-even">リポジトリ作成・Namespace定義からIssue運用を開始するスタートラインを学ぶ。ラベル・担当者・マイルストーンの3つの属性を使いこなし、Issueのオープンからクローズまでのライフサイクル管理を実践する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第3章：Issueテンプレートによる標準化</td>
+            <td class="co-odd">自由記述が招く非構造化データの弊害を理解する。YAML形式のIssueテンプレートの構造と構成要素・テンプレート定義と配置ルール・導入後の運用フローとUIの変化を実装し、チームの報告品質を均一化する方法を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第4章：イベントドリブンなIssueライフサイクルの構築</td>
+            <td class="co-even">IssueイベントとGitHub Actionsワークフローの起動の仕組みを理解する。自動応答（Issueオープン時の自動コメント）・動的制御（ラベルに応じたワークフロー分岐）を実装し、開発サイクルの自動化を構築する。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">※ 各章末に演習を実施します。</p>
+    <p class="note">※ 第4章はGitHub Actionsの基礎知識があるとより深く理解できます。</p>
+  </div>
+
+  <!-- 前提知識 -->
+  <div class="section">
+    <h2 class="section-title">受講にあたっての前提知識</h2>
+    <div class="prereq-card">
+
+      <h4>GitHubの基礎知識</h4>
+      <ul>
+        <li>GitHubアカウントを持ち、リポジトリの基本操作（作成・クローン・プッシュ）ができること。</li>
+        <li>GitHubのIssue・Pull Requestの概念をなんとなく知っていること。</li>
+      </ul>
+
+      <h4>基本的なPC・OS操作</h4>
+      <ul>
+        <li>Visual Studio Codeを使ったファイルの作成・編集ができること。</li>
+        <li>WSL2（Ubuntu）環境での初歩的なコマンド入力に抵抗がないこと。</li>
+      </ul>
+
+    </div>
+  </div>
+
+  <!-- 必要な受講環境 -->
+  <div class="section">
+    <h2 class="section-title">必要な受講環境</h2>
+    <div class="table-wrap">
+      <table class="env-table">
+        <thead>
+          <tr><th style="width:22%;">区分</th><th style="width:40%;">環境 / ツール</th><th>役割・用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="ev-label">ホストOS</td><td class="ev-odd">Windows 11</td><td class="ev-odd">研修用PCの基本環境</td></tr>
+          <tr><td class="ev-label">IDE</td><td class="ev-even">Visual Studio Code</td><td class="ev-even">ファイル編集・ターミナル操作</td></tr>
+          <tr><td class="ev-label">実行環境</td><td class="ev-odd">WSL2（Ubuntu 24.04）</td><td class="ev-odd">Linux環境での演習実行</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-even">Git Graph / GitLens / GitHub Pull Requests</td><td class="ev-even">コミット履歴・ブランチの表示・プッシュ操作</td></tr>
+          <tr><td class="ev-label">GitHubアカウント</td><td class="ev-odd">GitHub（無料プランで可）</td><td class="ev-odd">リポジトリ管理・Issues・GitHub Actions演習</td></tr>
+          <tr><td class="ev-label">演習解答</td><td class="ev-even">github.com/fullness-MFurukawa/issues-exercise</td><td class="ev-even">演習の解答リポジトリ（参照用）</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

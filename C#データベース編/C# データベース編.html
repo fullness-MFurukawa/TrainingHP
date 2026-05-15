@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C# データベース編（Entity Framework Core）</title>
+<style>
+  body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; color: #0d2b2b; margin: 0; padding: 20px; background: #f0f7f7; }
+  * { box-sizing: border-box; }
+
+  .hero {
+    text-align: center; padding: 48px 24px;
+    background: linear-gradient(135deg, #0d6e6e 0%, #1a8a8a 60%, #2aa8a8 100%);
+    color: #fff; border-radius: 8px; margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(13,110,110,0.3); position: relative; overflow: hidden;
+  }
+  .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:240px; height:240px; border-radius:50%; background:rgba(255,255,255,0.06); }
+  .hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.04); }
+  .hero h1 { margin:0 0 10px; font-size:32px; font-weight:700; color:#fff; position:relative; z-index:1; }
+  .hero h2 { margin:0; font-size:18px; font-weight:400; color:rgba(255,255,255,0.85); position:relative; z-index:1; }
+
+  .catchcopy { text-align:center; margin-bottom:50px; padding:20px; }
+  .catchcopy p { font-size:24px; font-weight:700; color:#0d6e6e; margin:0; line-height:1.6; }
+
+  .section { margin-bottom:50px; }
+  .section-title { font-size:22px; color:#0d2b2b; border-left:6px solid #0d6e6e; padding-left:15px; margin-bottom:30px; font-weight:700; }
+
+  .overview-card { background:#fff; border:1px solid #b2d8d8; border-radius:8px; padding:30px; box-shadow:0 2px 8px rgba(13,110,110,0.07); }
+  .overview-card h3 { color:#0d2b2b; border-bottom:2px solid #0d6e6e; padding-bottom:10px; margin-top:0; font-size:20px; }
+  .overview-card p { font-size:16px; line-height:1.8; color:#2a4a4a; margin-bottom:30px; }
+  .overview-card h4 { color:#0d2b2b; margin-bottom:8px; font-size:17px; }
+  .overview-card ul { font-size:15px; line-height:1.7; color:#2a4a4a; padding-left:20px; margin-bottom:0; }
+  .overview-card ul li { margin-bottom:6px; }
+  .purpose-item { margin-bottom:22px; }
+  .purpose-item:last-child { margin-bottom:0; }
+
+  .goal-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .goal-card { flex:1; min-width:280px; background:#fff; border:1px solid #b2d8d8; border-top:5px solid #0d6e6e; border-radius:4px 4px 8px 8px; padding:25px; box-shadow:0 2px 5px rgba(13,110,110,0.07); }
+  .goal-card h4 { margin-top:0; color:#0d2b2b; font-size:17px; display:flex; align-items:center; margin-bottom:12px; }
+  .goal-card h4 span { font-size:20px; margin-right:10px; }
+  .goal-card ul { font-size:14px; line-height:1.7; color:#2a4a4a; padding-left:20px; margin:0; }
+  .goal-card ul li { margin-bottom:7px; }
+
+  .recommend-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .recommend-card { flex:1; min-width:260px; background:#fff; border:1px solid #b2d8d8; border-radius:8px; padding:25px; box-shadow:0 2px 4px rgba(13,110,110,0.05); }
+  .recommend-card p { font-size:15px; font-weight:700; color:#0d2b2b; line-height:1.6; margin:0; }
+  .recommend-card p span { color:#0d6e6e; }
+
+  .prereq-card { background:#fff; border:1px solid #b2d8d8; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(13,110,110,0.07); }
+  .prereq-card h4 { color:#0a5050; margin-top:0; margin-bottom:10px; font-size:17px; border-bottom:1px solid #d4eaea; padding-bottom:8px; }
+  .prereq-card ul { font-size:15px; line-height:1.7; color:#2a4a4a; margin-bottom:25px; padding-left:20px; }
+  .prereq-card ul:last-child { margin-bottom:0; }
+  .rec-tag { display:inline-block; font-size:10px; padding:1px 8px; border-radius:20px; background:#FAEEDA; color:#854F0B; font-weight:500; margin-left:6px; vertical-align:middle; }
+
+  .table-wrap { overflow-x:auto; }
+
+  table.curriculum { width:100%; border-collapse:collapse; min-width:700px; line-height:1.6; box-shadow:0 2px 5px rgba(13,110,110,0.08); }
+  table.curriculum thead tr { color:#fff; background:#0d6e6e; }
+  table.curriculum thead th { padding:14px 12px; font-weight:700; text-align:left; border:1px solid #0a5050; }
+  table.curriculum thead th:first-child { text-align:center; width:8%; }
+  table.curriculum thead th:nth-child(2) { width:30%; }
+  table.curriculum tbody td { padding:12px; border:1px solid #d4eaea; color:#0d2b2b; vertical-align:top; font-size:14px; line-height:1.7; }
+  .day-cell { font-weight:700; text-align:center; white-space:nowrap; }
+  .d1 { background:#d4eaea; color:#0a5050; }
+  .d2 { background:#b2d8d8; color:#0a5050; }
+  .ch-odd  { font-weight:700; background:#e8f5f5; color:#0a5050; }
+  .ch-even { font-weight:700; background:#fff; color:#0a5050; }
+  .co-odd  { background:#f2fafa; }
+  .co-even { background:#fff; }
+
+  table.env-table { width:100%; border-collapse:collapse; min-width:400px; border:1px solid #0d6e6e; line-height:1.5; }
+  table.env-table thead tr { background:#0d6e6e; color:#fff; }
+  table.env-table thead th { padding:10px; border:1px solid #0a5050; text-align:left; font-weight:700; font-size:14px; }
+  table.env-table tbody td { padding:8px 10px; border:1px solid #d4eaea; font-size:13px; color:#0d2b2b; }
+  .ev-label { font-weight:700; background:#d4eaea; color:#0a5050; }
+  .ev-odd  { background:#e8f5f5; }
+  .ev-even { background:#fff; }
+
+  .ddd-box { background:#e8f5f5; border:1px solid #b2d8d8; border-left:4px solid #0d6e6e; border-radius:8px; padding:16px 20px; margin-top:16px; }
+  .ddd-box p { font-size:14px; color:#2a4a4a; margin:0; line-height:1.7; }
+  .ddd-box strong { color:#0d6e6e; }
+
+  .next-step { background:#e8f5f5; border:1px solid #b2d8d8; border-radius:8px; padding:20px 24px; margin-top:16px; }
+  .next-step p { font-size:14px; color:#2a4a4a; margin:0; line-height:1.7; }
+  .next-step strong { color:#0d6e6e; }
+
+  .note { font-size:13px; color:#5a8a8a; margin-top:10px; padding-left:4px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>C# データベース編</h1>
+  <h2>Entity Framework Core によるデータベースアクセス</h2>
+</div>
+
+<div class="catchcopy">
+  <p>EF Coreで学ぶ、データアクセスの基本と設計。</p>
+</div>
+
+<div style="font-family:'Segoe UI',sans-serif; color:#0d2b2b;">
+
+  <!-- 研修概要 -->
+  <div class="section">
+    <h2 class="section-title">研修概要</h2>
+    <div class="overview-card">
+
+      <h3>■ 本研修について</h3>
+      <p>本研修は、Entity Framework Coreを用いたデータベースアクセスの基本から、設計原則の実装まで体系的に学ぶハンズオンプログラムです。<br><br>
+      DbContext・Entity・LINQによる基本的なCRUD操作・リレーションシップ・トランザクション制御・応用クエリを一貫して習得します。さらに第6章では、Repositoryパターン・Adapterパターン・依存性逆転の原則（DIP）を実装レベルで体得し、変更に強く・テストしやすいデータアクセス層の設計を学びます。<br><br>
+      ドメインオブジェクト・Repositoryインターフェイスを通じてDDDの設計思想に自然に触れることができ、C# Webアプリケーション編からREST API開発コースへとつながるシリーズの「要」として位置づけられています。</p>
+
+      <div class="ddd-box">
+        <p>💡 <strong>DDDを当たり前の知識にするシリーズの「要」</strong><br>
+        DDDはもはや上級者だけの手法ではありません。本研修はデータアクセス層の実装を通じて、DDDの設計思想を現場エンジニアの基礎教養として自然に体得できるように設計されています。</p>
+      </div>
+
+      <h3 style="margin-top:28px;">■ 本研修の3つの目的</h3>
+      <p style="margin-bottom:16px;">本研修では、以下の3つを習得することを目的としています。</p>
+      <div class="purpose-item">
+        <h4>1. EF Coreを使ったデータベース操作を自走できるようになる</h4>
+        <p>DbContext・LINQ・トランザクション・応用クエリを実装しながら学び、EF Coreを用いたデータベース操作を独力で実装できる力を身につける。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>2. データアクセス層を「設計」できるようになる</h4>
+        <p>Repositoryパターン・Adapterパターン・DIPを体得し、DBが変わっても・テストが増えても・仕様が変わっても対応できる、変更に強いデータアクセス層を設計できるようになる。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>3. DDDを「当たり前の知識」として持てるようになる</h4>
+        <p>ドメインオブジェクト・Repositoryインターフェイスの実装を通じて、DDDの設計思想を自然に体得する。特別な手法ではなく、現代エンジニアの基礎教養としてDDDを身につける。</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 到達目標 -->
+  <div class="section">
+    <h2 class="section-title">到達目標（受講後に身につくスキル）</h2>
+    <div class="goal-grid">
+
+      <div class="goal-card">
+        <h4><span>🗄️</span>EF Core 基本操作</h4>
+        <ul>
+          <li>DbContext・Entity・DbSetの基本構成を理解し、CRUD操作・リレーションシップ・トランザクション制御を実装できる</li>
+          <li>LINQを使った並べ替え・グループ化・サブクエリ・集計など応用クエリを実装できる</li>
+        </ul>
+      </div>
+
+      <div class="goal-card">
+        <h4><span>🏗️</span>設計原則・DDD基礎</h4>
+        <ul>
+          <li>Repositoryパターン・Adapterパターン・DIPを実装レベルで活用し、変更に強いデータアクセス層を設計できる</li>
+          <li>ドメインオブジェクトとRepositoryインターフェイスを設計・実装できる</li>
+          <li>DDDの設計思想を「当たり前の知識」として自然に説明・実践できる</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- こんな企業にお勧め -->
+  <div class="section">
+    <h2 class="section-title">こんな企業にお勧めします</h2>
+    <div class="recommend-grid">
+      <div class="recommend-card"><p>DDDを<span>「特別な手法」ではなく「現場の基礎教養」</span>として組織に根づかせたい</p></div>
+      <div class="recommend-card"><p>C#エンジニアをWebアプリ開発から<span>データ設計・REST API開発へと段階的に育成</span>したい</p></div>
+      <div class="recommend-card"><p>変更に強く・テストしやすい<span>データアクセス層の設計</span>をチーム全体に浸透させたい</p></div>
+    </div>
+
+    <div class="next-step">
+      <p>📌 本研修はC#エンジニア育成ロードマップの<strong>第2ステップ</strong>として設計されています。<br>
+      <strong>C# Webアプリケーション編</strong>修了後に受講し、次は <strong>C# REST API開発コース</strong>（設計原則が身につくREST API開発ハンズオン）へのステップアップをお勧めします。</p>
+    </div>
+  </div>
+
+  <!-- カリキュラム -->
+  <div class="section">
+    <h2 class="section-title">カリキュラム詳細（全2日間）</h2>
+    <div class="table-wrap">
+      <table class="curriculum">
+        <thead>
+          <tr>
+            <th style="text-align:center;">日程</th>
+            <th>章・学習テーマ</th>
+            <th>学習内容・習得スキル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="day-cell d1" rowspan="4">1日目</td>
+            <td class="ch-odd">第1章：Entity Framework Coreの概要</td>
+            <td class="co-odd">ORMの概念とEF Coreの特徴・主な機能（CRUD・関連データ取得・マイグレーション）・入手方法を把握する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第2章：基本的なデータベース操作</td>
+            <td class="co-even">DbContext・Entity・DbSetの基本構成を理解し、問合せ・トラッキングモード・CRUD操作・例外処理を実装する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第3章：テーブル結合（リレーションシップ）</td>
+            <td class="co-odd">Data Annotations・Fluent APIによるリレーションシップ設定と、関連データの取得を実装する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第4章：トランザクション制御</td>
+            <td class="co-even">BeginTransaction・Commit・Rollbackを用いたトランザクション制御を実装し、データの整合性を保つ方法を体得する。</td>
+          </tr>
+          <tr>
+            <td class="day-cell d2" rowspan="2">2日目</td>
+            <td class="ch-odd">第5章：応用的なクエリ操作</td>
+            <td class="co-odd">LINQを用いた並べ替え・グループ化・サブクエリ・集計関数を実装する。SQLとの対応関係を理解し、適切なクエリを選択できる力を養う。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第6章：データベースアクセス機能の設計・実装</td>
+            <td class="co-even">Repositoryパターン・ドメインオブジェクト・Repositoryインターフェイス・Adapterパターン・DIPを実装レベルで体得する。DDDの設計思想を自然に習得し、演習アプリで設計原則を定着させる。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">※ 補足-A（LINQの利用）・補足-B（SQLの利用）は自習教材として提供します。2日目は第6章の演習時間を十分に確保します。</p>
+    <p class="note">※ 各章末にプログラム実装演習を実施します。</p>
+  </div>
+
+  <!-- 前提知識 -->
+  <div class="section">
+    <h2 class="section-title">受講にあたっての前提知識</h2>
+    <div class="prereq-card">
+
+      <h4>プログラミングの基礎知識</h4>
+      <ul>
+        <li>C#を用いた基本的なプログラミング（変数・条件分岐・ループ・クラス・メソッド）ができること。</li>
+        <li>オブジェクト指向プログラミング（クラス・インターフェイス・継承）の基本を理解していること。</li>
+      </ul>
+
+      <h4>データベースの基礎知識</h4>
+      <ul>
+        <li>リレーショナルデータベース（テーブル・主キー・外部キー）の基本概念を理解していること。</li>
+        <li>SQLによる基本的なCRUD操作（SELECT・INSERT・UPDATE・DELETE）ができること。</li>
+      </ul>
+
+      <h4>基本的なPC・OS操作</h4>
+      <ul>
+        <li>Visual Studio Codeを使ったコード編集・ターミナル操作ができること。</li>
+        <li>WSL2（Ubuntu）環境での初歩的なコマンド入力に抵抗がないこと。</li>
+      </ul>
+
+      <h4>あると望ましい知識 <span class="rec-tag">推奨</span></h4>
+      <ul>
+        <li>C# Webアプリケーション編の受講経験、またはASP.NET CoreによるWebアプリ開発の基礎知識。</li>
+        <li>Repositoryパターン・依存性逆転の原則（DIP）の概念的な理解。</li>
+      </ul>
+
+    </div>
+  </div>
+
+  <!-- 必要な受講環境 -->
+  <div class="section">
+    <h2 class="section-title">必要な受講環境</h2>
+    <div class="table-wrap">
+      <table class="env-table">
+        <thead>
+          <tr><th style="width:20%;">区分</th><th style="width:38%;">環境 / ツール</th><th>役割・用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="ev-label">ホストOS</td><td class="ev-odd">Windows 11</td><td class="ev-odd">研修用PCの基本環境</td></tr>
+          <tr><td class="ev-label">IDE</td><td class="ev-even">Visual Studio Code</td><td class="ev-even">コード編集・ターミナル操作・デバッグ</td></tr>
+          <tr><td class="ev-label">実行環境</td><td class="ev-odd">WSL2（Ubuntu 24.04 LTS）</td><td class="ev-odd">Linux環境でのアプリケーション実行</td></tr>
+          <tr><td class="ev-label">SDK</td><td class="ev-even">.NET 8 LTS</td><td class="ev-even">C# / EF Core アプリケーション開発・実行</td></tr>
+          <tr><td class="ev-label">RDBMS</td><td class="ev-odd">PostgreSQL 17</td><td class="ev-odd">サンプル・演習アプリのデータベース（WSL2環境）</td></tr>
+          <tr><td class="ev-label">SQLツール</td><td class="ev-even">pgAdmin 4</td><td class="ev-even">データベースの接続・操作・確認（Windows 11）</td></tr>
+          <tr><td class="ev-label">EF Coreプロバイダー</td><td class="ev-odd">Npgsql.EntityFrameworkCore.PostgreSQL</td><td class="ev-odd">EF CoreからPostgreSQLへの接続</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-even">C# for Visual Studio Code / C# Dev Kit / C# IDE Extensions for VSCode</td><td class="ev-even">C# / .NET 開発の補完・デバッグ支援</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Actions ハンズオン</title>
+<style>
+  body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; color: #24292e; margin: 0; padding: 20px; background: #f6f8fa; }
+  * { box-sizing: border-box; }
+
+  .hero {
+    text-align: center; padding: 48px 24px;
+    background: linear-gradient(135deg, #24292e 0%, #1b1f23 60%, #0d1117 100%);
+    color: #fff; border-radius: 8px; margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25); position: relative; overflow: hidden;
+  }
+  .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:240px; height:240px; border-radius:50%; background:rgba(33,136,255,0.1); }
+  .hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(40,167,69,0.08); }
+  .hero h1 { margin:0 0 10px; font-size:32px; font-weight:700; color:#fff; position:relative; z-index:1; }
+  .hero h2 { margin:0; font-size:18px; font-weight:400; color:rgba(255,255,255,0.82); position:relative; z-index:1; }
+
+  .catchcopy { text-align:center; margin-bottom:50px; padding:20px; }
+  .catchcopy p { font-size:24px; font-weight:700; color:#2188ff; margin:0; line-height:1.6; }
+
+  .section { margin-bottom:50px; }
+  .section-title { font-size:22px; color:#24292e; border-left:6px solid #2188ff; padding-left:15px; margin-bottom:30px; font-weight:700; }
+
+  .overview-card { background:#fff; border:1px solid #e1e4e8; border-radius:8px; padding:30px; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+  .overview-card h3 { color:#24292e; border-bottom:2px solid #2188ff; padding-bottom:10px; margin-top:0; font-size:20px; }
+  .overview-card p { font-size:16px; line-height:1.8; color:#444d56; margin-bottom:30px; }
+  .overview-card h4 { color:#24292e; margin-bottom:8px; font-size:17px; }
+  .overview-card ul { font-size:15px; line-height:1.7; color:#444d56; padding-left:20px; margin-bottom:0; }
+  .overview-card ul li { margin-bottom:6px; }
+  .purpose-item { margin-bottom:22px; }
+  .purpose-item:last-child { margin-bottom:0; }
+
+  .goal-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .goal-card { flex:1; min-width:280px; background:#fff; border:1px solid #e1e4e8; border-top:5px solid #2188ff; border-radius:4px 4px 8px 8px; padding:25px; box-shadow:0 2px 5px rgba(0,0,0,0.05); }
+  .goal-card h4 { margin-top:0; color:#24292e; font-size:18px; display:flex; align-items:center; margin-bottom:15px; }
+  .goal-card h4 span { font-size:22px; margin-right:10px; }
+  .goal-card ul { font-size:15px; line-height:1.7; color:#444d56; padding-left:20px; margin:0; }
+  .goal-card ul li { margin-bottom:8px; }
+
+  .recommend-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .recommend-card { flex:1; min-width:260px; background:#fff; border:1px solid #d1d5da; border-radius:8px; padding:25px; box-shadow:0 2px 4px rgba(0,0,0,0.03); }
+  .recommend-card p { font-size:16px; font-weight:700; color:#24292e; line-height:1.6; margin:0; }
+  .recommend-card p span { color:#2188ff; }
+
+  .prereq-card, .env-card { background:#fff; border:1px solid #e1e4e8; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(0,0,0,0.05); }
+  .prereq-card h4, .env-card h4 { color:#1a6ed4; margin-top:0; margin-bottom:10px; font-size:17px; border-bottom:1px solid #eaecef; padding-bottom:8px; }
+  .prereq-card ul { font-size:15px; line-height:1.7; color:#444d56; margin-bottom:25px; padding-left:20px; }
+  .prereq-card ul:last-child { margin-bottom:0; }
+  .env-card ul { font-size:15px; line-height:1.7; color:#444d56; margin-bottom:8px; padding-left:20px; }
+
+  /* タブ */
+  .tab-bar { display:flex; gap:0; margin-bottom:0; border-bottom:none; }
+  .tab-btn {
+    padding:12px 28px; font-size:15px; font-weight:700; cursor:pointer;
+    border:1px solid #e1e4e8; border-bottom:none; background:#f6f8fa; color:#6a737d;
+    border-radius:8px 8px 0 0; margin-right:4px; transition:all .15s;
+  }
+  .tab-btn:hover { background:#eaf2ff; color:#2188ff; }
+  .tab-btn.active { background:#fff; color:#2188ff; border-color:#2188ff; border-bottom:2px solid #fff; position:relative; z-index:1; }
+  .tab-btn.active-cs   { color:#534AB7; border-color:#534AB7; border-bottom:2px solid #fff; }
+  .tab-btn.active-java { color:#E76F00; border-color:#E76F00; border-bottom:2px solid #fff; }
+  .tab-btn.active-ts   { color:#2188ff; border-color:#2188ff; border-bottom:2px solid #fff; }
+
+  .tab-content { display:none; border:1px solid #e1e4e8; border-radius:0 8px 8px 8px; background:#fff; padding:24px; }
+  .tab-content.active { display:block; }
+
+  /* カリキュラムテーブル */
+  .table-wrap { overflow-x:auto; }
+  table.curriculum { width:100%; border-collapse:collapse; min-width:700px; line-height:1.6; box-shadow:0 2px 5px rgba(0,0,0,0.05); }
+  table.curriculum thead tr { color:#fff; }
+  table.curriculum thead th { padding:14px 12px; font-weight:700; text-align:left; }
+  table.curriculum thead th:first-child { text-align:center; width:8%; }
+  table.curriculum thead th:nth-child(2) { width:30%; }
+  table.curriculum tbody td { padding:12px; border:1px solid #e1e4e8; color:#24292e; vertical-align:top; font-size:14px; line-height:1.7; }
+
+  .day-cell { font-weight:700; text-align:center; white-space:nowrap; }
+
+  /* C# カラー */
+  .cs-head { background:#534AB7; border:1px solid #3f3890; }
+  .cs-day  { background:#eeecfc; color:#3f3890; }
+  .cs-ch-odd  { font-weight:700; background:#f5f4fd; color:#3f3890; }
+  .cs-ch-even { font-weight:700; background:#fff;    color:#3f3890; }
+  .cs-co-odd  { background:#faf9ff; }
+  .cs-co-even { background:#fff; }
+  .cs-hl-odd  { font-weight:700; background:#e8e5f8; color:#3f3890; }
+  .cs-hl-even { font-weight:700; background:#d8d4f0; color:#3f3890; }
+  .cs-hc-odd  { background:#f0eeff; }
+  .cs-hc-even { background:#e8e5f8; }
+
+  /* Java カラー */
+  .java-head { background:#C05C00; border:1px solid #994900; }
+  .java-day  { background:#fff0e0; color:#994900; }
+  .java-ch-odd  { font-weight:700; background:#fff5ec; color:#994900; }
+  .java-ch-even { font-weight:700; background:#fff;    color:#994900; }
+  .java-co-odd  { background:#fffaf5; }
+  .java-co-even { background:#fff; }
+  .java-hl-odd  { font-weight:700; background:#ffe8cc; color:#994900; }
+  .java-hl-even { font-weight:700; background:#ffd9aa; color:#994900; }
+  .java-hc-odd  { background:#fff2e0; }
+  .java-hc-even { background:#ffe8cc; }
+
+  /* TypeScript カラー */
+  .ts-head { background:#1a6ed4; border:1px solid #1558aa; }
+  .ts-day  { background:#e8f1ff; color:#1558aa; }
+  .ts-ch-odd  { font-weight:700; background:#f0f6ff; color:#1558aa; }
+  .ts-ch-even { font-weight:700; background:#fff;    color:#1558aa; }
+  .ts-co-odd  { background:#f6f9ff; }
+  .ts-co-even { background:#fff; }
+  .ts-hl-odd  { font-weight:700; background:#cfe0fa; color:#1558aa; }
+  .ts-hl-even { font-weight:700; background:#b8d0f5; color:#1558aa; }
+  .ts-hc-odd  { background:#deeafc; }
+  .ts-hc-even { background:#cfe0fa; }
+
+  /* 環境テーブル */
+  table.env-table { width:100%; border-collapse:collapse; min-width:400px; border:1px solid #2188ff; line-height:1.5; }
+  table.env-table thead tr { background:#2188ff; color:#fff; }
+  table.env-table thead th { padding:10px; border:1px solid #1a6ed4; text-align:left; font-weight:700; font-size:14px; }
+  table.env-table tbody td { padding:8px 10px; border:1px solid #e1e4e8; font-size:13px; color:#24292e; }
+  .ev-label { font-weight:700; background:#e8f1ff; color:#1a6ed4; }
+  .ev-odd  { background:#f0f6ff; }
+  .ev-even { background:#fff; }
+
+  .note { font-size:13px; color:#6a737d; margin-top:10px; padding-left:4px; }
+  .pattern-note { font-size:14px; color:#444d56; background:#f6f8fa; border:1px solid #e1e4e8; border-radius:6px; padding:12px 16px; margin-bottom:20px; }
+  .pattern-note strong { color:#2188ff; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>GitHub Actions ハンズオン</h1>
+  <h2>CI/CDの基本概念からパイプライン構築まで</h2>
+</div>
+
+<div class="catchcopy">
+  <p>コードを書けるから、システムも届けられる。その先へ。</p>
+</div>
+
+<div style="font-family:'Segoe UI',sans-serif; color:#24292e;">
+
+  <!-- 研修概要 -->
+  <div class="section">
+    <h2 class="section-title">研修概要</h2>
+    <div class="overview-card">
+      <h3>■ 本研修について</h3>
+      <p>「コードは書けるけれど、インフラやデプロイは自信がない」——そんな課題を解消するために設計されたのが本研修です。<br><br>
+      クラウド環境の設計・構築からCI/CDパイプラインの実装まで、現場と同じ構成を使って手を動かしながら学びます。AWSとAzureの2つのクラウド、Java・C#・TypeScriptの3言語から自分の目標に合ったパターンを選択できるため、実務に即したスキルを効率よく習得できます。<br><br>
+      本研修を通じて、開発から運用環境へのデリバリーまでを一気通貫で担えるエンジニアを目指します。</p>
+
+      <h3>■ 本研修の3つの目的</h3>
+      <p style="margin-bottom:16px;">本研修では、以下の3つを習得することを目的としています。</p>
+      <div class="purpose-item">
+        <h4>1. クラウドインフラの設計と構築</h4>
+        <p>クラウドインフラ（AWS / Azure）を用いたネットワーク・サーバー・データベース環境の設計と構築</p>
+      </div>
+      <div class="purpose-item">
+        <h4>2. CI/CDパイプラインの実装と自動デプロイ</h4>
+        <p>GitHub Actionsを活用したCI/CDパイプラインの実装と、運用環境への自動デプロイ</p>
+      </div>
+      <div class="purpose-item">
+        <h4>3. 一気通貫のエンジニアリング力</h4>
+        <p>開発から運用環境へのデリバリーまでを一気通貫で担える、実践的なエンジニアリング力の習得</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 到達目標 -->
+  <div class="section">
+    <h2 class="section-title">到達目標（受講後に身につくスキル）</h2>
+    <div class="goal-grid">
+      <div class="goal-card">
+        <h4><span>☁️</span>クラウドインフラ構築</h4>
+        <ul>
+          <li>クラウド環境（AWS / Azure）でのネットワーク・サーバー・データベースの設計と構築</li>
+          <li>セキュリティグループ・NSGを用いた、安全なインフラ構成の実装</li>
+        </ul>
+      </div>
+      <div class="goal-card">
+        <h4><span>⚙️</span>CI/CDパイプライン</h4>
+        <ul>
+          <li>GitHub Actionsを活用したCI/CDパイプラインの設計・構築</li>
+          <li>選択した言語（Java / C# / TypeScript）によるビルドから運用環境への自動デプロイ</li>
+        </ul>
+      </div>
+      <div class="goal-card">
+        <h4><span>🚀</span>総合デリバリー力</h4>
+        <ul>
+          <li>開発から運用環境へのデリバリーを一気通貫で担えるエンジニアリング力</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- こんな企業にお勧め -->
+  <div class="section">
+    <h2 class="section-title">こんな企業にお勧めします</h2>
+    <div class="recommend-grid">
+      <div class="recommend-card"><p>AWS・Azureの導入・拡大フェーズにあり、インフラを<span>自社で設計・運用できる人材</span>を育成したい</p></div>
+      <div class="recommend-card"><p>クライアントのクラウド移行案件に対応できる<span>エンジニアを増やしたい</span></p></div>
+      <div class="recommend-card"><p>開発速度を上げるためにCI/CDを整備し、<span>デリバリーの自動化</span>を推進したい</p></div>
+      <div class="recommend-card"><p>既存システムのクラウド移行と合わせて、<span>内製開発体制を強化</span>したい</p></div>
+    </div>
+  </div>
+
+  <!-- カリキュラム（タブ切り替え） -->
+  <div class="section">
+    <h2 class="section-title">カリキュラム詳細（全2日間）</h2>
+    <p class="pattern-note">受講パターンに応じてタブを選択してください。クラウド環境（AWS / Azure）はいずれのパターンでも選択できます。</p>
+
+    <div class="tab-bar">
+      <button class="tab-btn active-cs active" onclick="switchTab('cs', this)">C# / ASP.NET Core</button>
+      <button class="tab-btn" onclick="switchTab('java', this)">Java / Spring Boot</button>
+      <button class="tab-btn" onclick="switchTab('ts', this)">TypeScript / Next.js</button>
+    </div>
+
+    <!-- C# -->
+    <div id="tab-cs" class="tab-content active">
+      <div class="table-wrap">
+        <table class="curriculum">
+          <thead>
+            <tr class="cs-head">
+              <th style="text-align:center; border:1px solid #3f3890;">日程</th>
+              <th style="border:1px solid #3f3890;">章・学習テーマ</th>
+              <th style="border:1px solid #3f3890;">学習内容・習得スキル</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="day-cell cs-day" rowspan="5">1日目</td>
+              <td class="cs-ch-odd">第1章：CI/CDとGitHub Actionsの概要</td>
+              <td class="cs-co-odd">CI/CDの基本概念（継続的インテグレーション・継続的デリバリー）とそのメリットを学びます。GitHub Actionsの特徴と、Workflow・Event・Runner・Job・Step・Actionの6つの基本用語と階層構造を理解します。</td>
+            </tr>
+            <tr>
+              <td class="cs-ch-even">第2章：ワークフローの基本構造</td>
+              <td class="cs-co-even">ワークフローファイルの配置場所（.github/workflows/）とYAML記法の基礎を学びます。5つの必須キーワード（name・on・jobs・runs-on・steps）の記述方法、push/手動/スケジュールによるトリガーの設定、実行履歴の確認と再実行の操作を実践します。</td>
+            </tr>
+            <tr>
+              <td class="cs-ch-odd">第3章：ワークフローの制御と環境設定</td>
+              <td class="cs-co-odd">needsキーワードを使ったジョブの並列・直列実行の制御、actions/checkoutによるソースコード取得、多彩なトリガー（pull_request・schedule・workflow_dispatch等）とブランチ・パス指定によるフィルタリングを学びます。GitHubホスト型・セルフホスト型Runnerの違い、環境変数（env）とシークレット（secrets）による安全な設定管理を実践します。</td>
+            </tr>
+            <tr>
+              <td class="cs-ch-even">第4章：CI（継続的インテグレーション）の概要</td>
+              <td class="cs-co-even">CIの目的（コード変更のたびにビルドとテストを自動実行し、バグを早期発見する仕組み）とメリットを理解します。ビルド・テスト・静的解析（Lint）の3本柱と、プルリクエストとCIを連携させてマージ前の品質を自動担保する仕組みを学びます。</td>
+            </tr>
+            <tr>
+              <td class="cs-hl-odd">第5章：C#アプリケーションのCI実践</td>
+              <td class="cs-hc-odd">ASP.NET Coreアプリを対象に、actions/setup-dotnetによる.NET SDK環境構築とdotnet buildによるビルドを自動化します。dotnet testによる単体テスト・結合テストの自動化、dotnet formatによる静的解析（フォーマット検証）、TestcontainersとDockerを使ったデータベース連動テストを段階的に構築します。</td>
+            </tr>
+            <tr>
+              <td class="day-cell cs-day" rowspan="3">2日目</td>
+              <td class="cs-ch-even">第8章：CDの概要とクラウドインフラ構築</td>
+              <td class="cs-co-even">CD（継続的デリバリー）の概念とBlue/Greenデプロイメントなどのデプロイ戦略を学びます。AWSとAzureの用語対照（VPC/VNet・EC2/VM・RDS/Azure Database等）、セキュアなネットワーク設計を理解します。受講パターンに応じてAWS／Azureのインフラ環境を構築し、SSH・DB接続の疎通確認とGitHub Secretsへの認証情報登録を実践します。</td>
+            </tr>
+            <tr>
+              <td class="cs-hl-even">第9章：C#アプリケーションのCDとワークフロー構築</td>
+              <td class="cs-hc-even">dotnet publishによるLinux向け配布パッケージ（FDD/SCD）の生成、appleboy/ssh-actionを使った運用環境への接続と疎通確認、ASP.NET Coreランタイムの自動プロビジョニングを実装します。appleboy/scp-actionによるアーティファクト転送、SQLスクリプトによるデータベース初期化、Nginxリバースプロキシ設定、systemdによるアプリケーションのサービス化（常駐化）とSecretを使ったDB接続情報の環境変数注入を構築します。</td>
+            </tr>
+            <tr>
+              <td class="cs-ch-odd">第12章：クラウドリソースのクリーニング</td>
+              <td class="cs-co-odd">演習で作成したクラウドリソースを依存関係の順序に従って安全に削除します。AWSはEC2・RDS・VPC等の削除手順を、AzureはVM・Azure Database・VNet等の削除手順を実践し、不要なコストが発生しない運用管理の基本を学びます。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">※ 第5・9章は C#（ASP.NET Core）の受講者が対象です。クラウド環境はAWS・Azureのいずれかを選択します。</p>
+    </div>
+
+    <!-- Java -->
+    <div id="tab-java" class="tab-content">
+      <div class="table-wrap">
+        <table class="curriculum">
+          <thead>
+            <tr class="java-head">
+              <th style="text-align:center; border:1px solid #994900;">日程</th>
+              <th style="border:1px solid #994900;">章・学習テーマ</th>
+              <th style="border:1px solid #994900;">学習内容・習得スキル</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="day-cell java-day" rowspan="5">1日目</td>
+              <td class="java-ch-odd">第1章：CI/CDとGitHub Actionsの概要</td>
+              <td class="java-co-odd">CI/CDの基本概念（継続的インテグレーション・継続的デリバリー）とそのメリットを学びます。GitHub Actionsの特徴と、Workflow・Event・Runner・Job・Step・Actionの6つの基本用語と階層構造を理解します。</td>
+            </tr>
+            <tr>
+              <td class="java-ch-even">第2章：ワークフローの基本構造</td>
+              <td class="java-co-even">ワークフローファイルの配置場所（.github/workflows/）とYAML記法の基礎を学びます。5つの必須キーワード（name・on・jobs・runs-on・steps）の記述方法、push/手動/スケジュールによるトリガーの設定、実行履歴の確認と再実行の操作を実践します。</td>
+            </tr>
+            <tr>
+              <td class="java-ch-odd">第3章：ワークフローの制御と環境設定</td>
+              <td class="java-co-odd">needsキーワードを使ったジョブの並列・直列実行の制御、actions/checkoutによるソースコード取得、多彩なトリガー（pull_request・schedule・workflow_dispatch等）とブランチ・パス指定によるフィルタリングを学びます。GitHubホスト型・セルフホスト型Runnerの違い、環境変数（env）とシークレット（secrets）による安全な設定管理を実践します。</td>
+            </tr>
+            <tr>
+              <td class="java-ch-even">第4章：CI（継続的インテグレーション）の概要</td>
+              <td class="java-co-even">CIの目的（コード変更のたびにビルドとテストを自動実行し、バグを早期発見する仕組み）とメリットを理解します。ビルド・テスト・静的解析（Lint）の3本柱と、プルリクエストとCIを連携させてマージ前の品質を自動担保する仕組みを学びます。</td>
+            </tr>
+            <tr>
+              <td class="java-hl-odd">第6章：JavaアプリケーションのCI実践</td>
+              <td class="java-hc-odd">Spring Boot×Gradleプロジェクトを対象に、actions/setup-javaとGradle Wrapper（./gradlew）を用いた再現性の高いビルド環境を構築します。JUnit 5による単体テスト、MockMvcを活用したWeb層の結合テスト、Spotlessによるコードフォーマット検証、TestcontainersとPostgreSQLを使ったDBアクセス層のテストを自動化します。</td>
+            </tr>
+            <tr>
+              <td class="day-cell java-day" rowspan="3">2日目</td>
+              <td class="java-ch-even">第8章：CDの概要とクラウドインフラ構築</td>
+              <td class="java-co-even">CD（継続的デリバリー）の概念とBlue/Greenデプロイメントなどのデプロイ戦略を学びます。AWSとAzureの用語対照（VPC/VNet・EC2/VM・RDS/Azure Database等）、セキュアなネットワーク設計を理解します。受講パターンに応じてAWS／Azureのインフラ環境を構築し、SSH・DB接続の疎通確認とGitHub Secretsへの認証情報登録を実践します。</td>
+            </tr>
+            <tr>
+              <td class="java-hl-even">第10章：JavaアプリケーションのCDとワークフロー構築</td>
+              <td class="java-hc-even">GradleによるExecutable JAR（Fat JAR）の生成とパッケージング、appleboy/ssh-actionを使った運用環境への接続と疎通確認、OpenJDK 21の自動プロビジョニング（冪等性の確保）を実装します。appleboy/scp-actionによるJARファイル転送、SQLスクリプトによるデータベース初期化、Nginxリバースプロキシ設定、systemdによるアプリケーションのサービス化とSpring Boot環境変数オーバーライドによるセキュアな接続管理を構築します。</td>
+            </tr>
+            <tr>
+              <td class="java-ch-odd">第12章：クラウドリソースのクリーニング</td>
+              <td class="java-co-odd">演習で作成したクラウドリソースを依存関係の順序に従って安全に削除します。AWSはEC2・RDS・VPC等の削除手順を、AzureはVM・Azure Database・VNet等の削除手順を実践し、不要なコストが発生しない運用管理の基本を学びます。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">※ 第6・10章は Java（Spring Boot）の受講者が対象です。クラウド環境はAWS・Azureのいずれかを選択します。</p>
+    </div>
+
+    <!-- TypeScript -->
+    <div id="tab-ts" class="tab-content">
+      <div class="table-wrap">
+        <table class="curriculum">
+          <thead>
+            <tr class="ts-head">
+              <th style="text-align:center; border:1px solid #1558aa;">日程</th>
+              <th style="border:1px solid #1558aa;">章・学習テーマ</th>
+              <th style="border:1px solid #1558aa;">学習内容・習得スキル</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="day-cell ts-day" rowspan="5">1日目</td>
+              <td class="ts-ch-odd">第1章：CI/CDとGitHub Actionsの概要</td>
+              <td class="ts-co-odd">CI/CDの基本概念（継続的インテグレーション・継続的デリバリー）とそのメリットを学びます。GitHub Actionsの特徴と、Workflow・Event・Runner・Job・Step・Actionの6つの基本用語と階層構造を理解します。</td>
+            </tr>
+            <tr>
+              <td class="ts-ch-even">第2章：ワークフローの基本構造</td>
+              <td class="ts-co-even">ワークフローファイルの配置場所（.github/workflows/）とYAML記法の基礎を学びます。5つの必須キーワード（name・on・jobs・runs-on・steps）の記述方法、push/手動/スケジュールによるトリガーの設定、実行履歴の確認と再実行の操作を実践します。</td>
+            </tr>
+            <tr>
+              <td class="ts-ch-odd">第3章：ワークフローの制御と環境設定</td>
+              <td class="ts-co-odd">needsキーワードを使ったジョブの並列・直列実行の制御、actions/checkoutによるソースコード取得、多彩なトリガー（pull_request・schedule・workflow_dispatch等）とブランチ・パス指定によるフィルタリングを学びます。GitHubホスト型・セルフホスト型Runnerの違い、環境変数（env）とシークレット（secrets）による安全な設定管理を実践します。</td>
+            </tr>
+            <tr>
+              <td class="ts-ch-even">第4章：CI（継続的インテグレーション）の概要</td>
+              <td class="ts-co-even">CIの目的（コード変更のたびにビルドとテストを自動実行し、バグを早期発見する仕組み）とメリットを理解します。ビルド・テスト・静的解析（Lint）の3本柱と、プルリクエストとCIを連携させてマージ前の品質を自動担保する仕組みを学びます。</td>
+            </tr>
+            <tr>
+              <td class="ts-hl-odd">第7章：Next.js（TypeScript）アプリケーションのCI実践</td>
+              <td class="ts-hc-odd">Next.jsプロジェクトを対象に、actions/setup-nodeとキャッシュ（cache: 'npm'）によるパッケージインストールの高速化を実装します。ESLint・Prettier・TypeScript型チェック（tsc --noEmit）による静的解析、Vitest＋React Testing Libraryによるコンポーネントテスト、PlaywrightによるE2Eテストの自動化、MSW（Mock Service Worker）を使ったバックエンドAPI連携テストを構築します。</td>
+            </tr>
+            <tr>
+              <td class="day-cell ts-day" rowspan="3">2日目</td>
+              <td class="ts-ch-even">第8章：CDの概要とクラウドインフラ構築</td>
+              <td class="ts-co-even">CD（継続的デリバリー）の概念とBlue/Greenデプロイメントなどのデプロイ戦略を学びます。AWSとAzureの用語対照（VPC/VNet・EC2/VM・RDS/Azure Database等）、セキュアなネットワーク設計を理解します。受講パターンに応じてAWS／Azureのインフラ環境を構築し、SSH・DB接続の疎通確認とGitHub Secretsへの認証情報登録を実践します。</td>
+            </tr>
+            <tr>
+              <td class="ts-hl-even">第11章：TypeScriptアプリケーションのCDとワークフロー構築</td>
+              <td class="ts-hc-even">Next.jsのoutput: 'standalone'設定による最小フットプリントの配布パッケージ生成、appleboy/ssh-actionによる疎通確認、Node.js（LTS）とPM2の自動プロビジョニングを実装します。Standaloneディレクトリと静的アセット（public・.next/static）のSCP転送、NEXTAUTH_SECRET・NEXTAUTH_URL・API_BASE_URLの.env動的生成、PM2によるZero Downtime Reload（無停止再起動）とNginxリバースプロキシを構築します。</td>
+            </tr>
+            <tr>
+              <td class="ts-ch-odd">第12章：クラウドリソースのクリーニング</td>
+              <td class="ts-co-odd">演習で作成したクラウドリソースを依存関係の順序に従って安全に削除します。AWSはEC2・RDS・VPC等の削除手順を、AzureはVM・Azure Database・VNet等の削除手順を実践し、不要なコストが発生しない運用管理の基本を学びます。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">※ 第7・11章は TypeScript（Next.js）の受講者が対象です。クラウド環境はAWS・Azureのいずれかを選択します。</p>
+    </div>
+  </div>
+
+  <!-- 前提知識 -->
+  <div class="section">
+    <h2 class="section-title">受講にあたっての前提知識</h2>
+    <div class="prereq-card">
+      <h4>プログラミングの基礎知識</h4>
+      <ul><li>受講パターンに応じて、Java（Spring Boot）・C#（ASP.NET Core）・TypeScript（Node.js）のいずれかを用いた、基本的なWebアプリケーションの作成・実行経験があること。</li></ul>
+      <h4>基本的なPC・OS操作</h4>
+      <ul>
+        <li>Windows TerminalやPowerShellを用いた基本的なコマンド操作、ファイル編集ができること。</li>
+        <li>Linux（Ubuntu）環境での初歩的なコマンド入力に抵抗がないこと。</li>
+      </ul>
+      <h4>Gitの基礎知識</h4>
+      <ul><li>GitHubを使ったリポジトリの作成・クローン・プッシュなど、基本的な操作ができること。</li></ul>
+    </div>
+  </div>
+
+  <!-- 必要な受講環境 -->
+  <div class="section">
+    <h2 class="section-title">必要な受講環境</h2>
+    <div class="env-card">
+      <h4>利用するクラウド環境</h4>
+      <ul>
+        <li><strong>AWS</strong>　AWSマネジメントコンソール／東京リージョン（ap-northeast-1）／受講者ごとに用意されたAWSアカウント</li>
+        <li><strong>Azure</strong>　Azureポータル／東日本リージョン（Japan East）／受講者ごとに用意されたAzureサブスクリプション</li>
+      </ul>
+      <p class="note" style="margin-bottom:20px;">※ 受講パターンに応じて、いずれか一方を使用します。</p>
+      <h4>アプリケーション開発環境</h4>
+      <div class="table-wrap">
+        <table class="env-table">
+          <thead>
+            <tr><th style="width:18%;">区分</th><th style="width:36%;">環境 / ツール</th><th>役割・用途</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="ev-label">ホストOS</td><td class="ev-odd">Windows 11</td><td class="ev-odd">研修用PCの基本環境</td></tr>
+            <tr><td class="ev-label">IDE</td><td class="ev-even">Visual Studio Code</td><td class="ev-even">コマンド操作およびアプリケーション開発</td></tr>
+            <tr><td class="ev-label">ターミナル</td><td class="ev-odd">Windows Terminal / PowerShell</td><td class="ev-odd">ファイル編集、コマンド操作、結果確認</td></tr>
+            <tr><td class="ev-label">OS</td><td class="ev-even">Ubuntu 24.04</td><td class="ev-even">仮想サーバー（EC2 / VM）</td></tr>
+            <tr><td class="ev-label">RDBMS</td><td class="ev-odd">PostgreSQL 17</td><td class="ev-odd">クラウドデータベース（RDS / Azure DB）</td></tr>
+            <tr><td class="ev-label">SQLツール</td><td class="ev-even">pgAdmin 4</td><td class="ev-even">データベースリソース作成・管理</td></tr>
+            <tr><td class="ev-label">Java</td><td class="ev-odd">JDK 21 / Spring Boot 4</td><td class="ev-odd">Java Webアプリケーション構築</td></tr>
+            <tr><td class="ev-label">C#</td><td class="ev-even">.NET SDK 8 / ASP.NET Core 8</td><td class="ev-even">C# Webアプリケーション構築</td></tr>
+            <tr><td class="ev-label">TypeScript</td><td class="ev-odd">Node.js 22 / TypeScript 5</td><td class="ev-odd">TypeScript Webアプリケーション構築</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">※ Java / C# / TypeScript は受講パターンに応じていずれか一つを使用します。</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function switchTab(lang, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.remove('active', 'active-cs', 'active-java', 'active-ts');
+  });
+  document.getElementById('tab-' + lang).classList.add('active');
+  btn.classList.add('active', 'active-' + lang);
+}
+</script>
+</body>
+</html>

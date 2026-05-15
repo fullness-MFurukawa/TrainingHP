@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DDD戦略的設計：意思決定のロードマップ</title>
+<style>
+  body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; color: #0d1a2d; margin: 0; padding: 20px; background: #f4f2e8; }
+  * { box-sizing: border-box; }
+
+  .hero {
+    text-align: center; padding: 48px 24px;
+    background: linear-gradient(135deg, #0d1a2d 0%, #1e3a5f 60%, #2a5285 100%);
+    color: #fff; border-radius: 8px; margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(30,58,95,0.4); position: relative; overflow: hidden;
+  }
+  .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:240px; height:240px; border-radius:50%; background:rgba(201,162,39,0.12); }
+  .hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(201,162,39,0.08); }
+  .hero h1 { margin:0 0 10px; font-size:32px; font-weight:700; color:#fff; position:relative; z-index:1; }
+  .hero h2 { margin:0; font-size:18px; font-weight:400; color:rgba(255,255,255,0.82); position:relative; z-index:1; }
+
+  .catchcopy { text-align:center; margin-bottom:50px; padding:20px; }
+  .catchcopy p { font-size:22px; font-weight:700; color:#1e3a5f; margin:0; line-height:1.6; }
+
+  .section { margin-bottom:50px; }
+  .section-title { font-size:22px; color:#0d1a2d; border-left:6px solid #c9a227; padding-left:15px; margin-bottom:30px; font-weight:700; }
+
+  .overview-card { background:#fff; border:1px solid #ddd5b0; border-radius:8px; padding:30px; box-shadow:0 2px 8px rgba(30,58,95,0.07); }
+  .overview-card h3 { color:#0d1a2d; border-bottom:2px solid #c9a227; padding-bottom:10px; margin-top:0; font-size:20px; }
+  .overview-card p { font-size:16px; line-height:1.8; color:#1a2a3a; margin-bottom:30px; }
+  .overview-card h4 { color:#0d1a2d; margin-bottom:8px; font-size:17px; }
+  .overview-card ul { font-size:15px; line-height:1.7; color:#1a2a3a; padding-left:20px; margin-bottom:0; }
+  .overview-card ul li { margin-bottom:6px; }
+  .purpose-item { margin-bottom:22px; }
+  .purpose-item:last-child { margin-bottom:0; }
+
+  .lang-box { background:#f0ede0; border:1px solid #ddd5b0; border-left:4px solid #c9a227; border-radius:8px; padding:16px 20px; margin-bottom:28px; }
+  .lang-box p { font-size:14px; color:#1a2a3a; margin:0; line-height:1.7; }
+  .lang-box strong { color:#1e3a5f; }
+
+  .roadmap-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:16px; margin-bottom:28px; }
+  .roadmap-card { background:#f8f6ee; border:1px solid #ddd5b0; border-radius:8px; padding:18px 20px; }
+  .roadmap-card h4 { margin:0 0 8px; font-size:15px; color:#1e3a5f; font-weight:700; }
+  .roadmap-card p { margin:0; font-size:13px; color:#1a2a3a; line-height:1.6; }
+  .roadmap-num { display:inline-block; background:#c9a227; color:#fff; border-radius:50%; width:22px; height:22px; text-align:center; line-height:22px; font-size:12px; font-weight:700; margin-right:8px; }
+
+  .goal-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .goal-card { flex:1; min-width:260px; background:#fff; border:1px solid #ddd5b0; border-top:5px solid #c9a227; border-radius:4px 4px 8px 8px; padding:25px; box-shadow:0 2px 5px rgba(30,58,95,0.07); }
+  .goal-card h4 { margin-top:0; color:#0d1a2d; font-size:17px; display:flex; align-items:center; margin-bottom:12px; }
+  .goal-card h4 span { font-size:20px; margin-right:10px; }
+  .goal-card ul { font-size:14px; line-height:1.7; color:#1a2a3a; padding-left:20px; margin:0; }
+  .goal-card ul li { margin-bottom:7px; }
+
+  .recommend-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .recommend-card { flex:1; min-width:260px; background:#fff; border:1px solid #ddd5b0; border-radius:8px; padding:25px; box-shadow:0 2px 4px rgba(30,58,95,0.05); }
+  .recommend-card p { font-size:15px; font-weight:700; color:#0d1a2d; line-height:1.6; margin:0; }
+  .recommend-card p span { color:#1e3a5f; }
+
+  .prereq-card { background:#fff; border:1px solid #ddd5b0; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(30,58,95,0.07); }
+  .prereq-card h4 { color:#1e3a5f; margin-top:0; margin-bottom:10px; font-size:17px; border-bottom:1px solid #ede8d0; padding-bottom:8px; }
+  .prereq-card ul { font-size:15px; line-height:1.7; color:#1a2a3a; margin-bottom:25px; padding-left:20px; }
+  .prereq-card ul:last-child { margin-bottom:0; }
+  .rec-tag { display:inline-block; font-size:10px; padding:1px 8px; border-radius:20px; background:#FAEEDA; color:#854F0B; font-weight:500; margin-left:6px; vertical-align:middle; }
+
+  .table-wrap { overflow-x:auto; }
+
+  table.curriculum { width:100%; border-collapse:collapse; min-width:700px; line-height:1.6; box-shadow:0 2px 5px rgba(30,58,95,0.08); }
+  table.curriculum thead tr { color:#fff; background:#1e3a5f; }
+  table.curriculum thead th { padding:14px 12px; font-weight:700; text-align:left; border:1px solid #0d1a2d; }
+  table.curriculum thead th:first-child { text-align:center; width:8%; }
+  table.curriculum thead th:nth-child(2) { width:30%; }
+  table.curriculum tbody td { padding:12px; border:1px solid #ede8d0; color:#0d1a2d; vertical-align:top; font-size:14px; line-height:1.7; }
+  .day-cell { font-weight:700; text-align:center; white-space:nowrap; background:#e8e0c8; color:#1e3a5f; }
+  .ch-odd  { font-weight:700; background:#f4f0e0; color:#1e3a5f; }
+  .ch-even { font-weight:700; background:#fff; color:#1e3a5f; }
+  .co-odd  { background:#faf8f0; }
+  .co-even { background:#fff; }
+
+  table.env-table { width:100%; border-collapse:collapse; min-width:400px; border:1px solid #c9a227; line-height:1.5; }
+  table.env-table thead tr { background:#1e3a5f; color:#fff; }
+  table.env-table thead th { padding:10px; border:1px solid #0d1a2d; text-align:left; font-weight:700; font-size:14px; }
+  table.env-table tbody td { padding:8px 10px; border:1px solid #ede8d0; font-size:13px; color:#0d1a2d; }
+  .ev-label { font-weight:700; background:#e8e0c8; color:#1e3a5f; }
+  .ev-odd  { background:#f4f0e0; }
+  .ev-even { background:#fff; }
+
+  .next-step { background:#f0ede0; border:1px solid #ddd5b0; border-radius:8px; padding:20px 24px; margin-top:16px; }
+  .next-step p { font-size:14px; color:#1a2a3a; margin:0; line-height:1.7; }
+  .next-step strong { color:#1e3a5f; }
+
+  .note { font-size:13px; color:#6a5a2a; margin-top:10px; padding-left:4px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>DDD戦略的設計：意思決定のロードマップ</h1>
+  <h2>整理・境界・連携・組織 — DDDの戦略的設計を体系的に学ぶ</h2>
+</div>
+
+<div class="catchcopy">
+  <p>DDDの戦略的設計を、意思決定のロードマップとして学ぶ。</p>
+</div>
+
+<div style="font-family:'Segoe UI',sans-serif; color:#0d1a2d;">
+
+  <!-- 研修概要 -->
+  <div class="section">
+    <h2 class="section-title">研修概要</h2>
+    <div class="overview-card">
+
+      <div class="lang-box">
+        <p>🌐 <strong>言語・技術スタックを問わず受講できる唯一のDDDコース</strong><br>
+        Java・C#・TypeScript混在チームにも対応。エンジニア・アーキテクト・マネージャーが同じ場で学ぶことで、組織全体の設計語彙が揃います。</p>
+      </div>
+
+      <h3>■ 意思決定の4区分ロードマップ</h3>
+      <div class="roadmap-grid">
+        <div class="roadmap-card">
+          <h4><span class="roadmap-num">1</span>整理（問題空間の理解）</h4>
+          <p>ドメイン蒸留・サブドメイン・ドメインビジョン・コアドメインチャート<br>→「何に投資するか」を決める</p>
+        </div>
+        <div class="roadmap-card">
+          <h4><span class="roadmap-num">2</span>境界（言語とモデルの一貫性）</h4>
+          <p>ユビキタス言語・境界付けられたコンテキスト・明示的境界<br>→「同じ言葉＝同じ判断」になる範囲を切る</p>
+        </div>
+        <div class="roadmap-card">
+          <h4><span class="roadmap-num">3</span>連携（コンテキスト間の関係設計）</h4>
+          <p>コンテキストマップ・各種関係パターン・ACL・公開言語<br>→「連携のルールを合意する」</p>
+        </div>
+        <div class="roadmap-card">
+          <h4><span class="roadmap-num">4</span>組織（意思決定の固定）</h4>
+          <p>コンウェイの法則・チーム＝コンテキスト・責務と意思決定の分離<br>→「意思決定の責任線を固定する」</p>
+        </div>
+      </div>
+
+      <h3>■ 本研修について</h3>
+      <p>本研修は、ドメイン駆動設計（DDD）の戦略的設計を「整理→境界→連携→組織」という意思決定のロードマップとして体系的に学ぶプログラムです。<br><br>
+      ドメインの蒸留・ユビキタス言語の定義・境界付けられたコンテキストの設計・コンテキストマップによる連携設計・コンウェイの法則に基づく組織設計まで、DDDの戦略的設計に必要な意思決定を一貫して習得します。<br><br>
+      Java・C#・TypeScriptといった言語を問わず受講できるため、混在チームにも対応しています。エンジニア・アーキテクト・マネージャーが同じ場で学ぶことで、組織全体の設計語彙が揃い、技術設計と組織設計を同じ視点で議論できる環境を構築します。</p>
+
+      <h3>■ 本研修の3つの目的</h3>
+      <p style="margin-bottom:16px;">本研修では、以下の3つを習得することを目的としています。</p>
+      <div class="purpose-item">
+        <h4>1. DDDの戦略的設計を意思決定の順序で体得する</h4>
+        <p>ドメインの蒸留・ユビキタス言語・境界付けられたコンテキスト・コンテキストマップ・コンウェイの法則を「整理→境界→連携→組織」の順序で体系的に習得し、設計判断の根拠を言語化できるようになる。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>2. コンテキスト間の境界と連携を正しく設計できるようになる</h4>
+        <p>境界付けられたコンテキストの設計原則とコンテキストマップの関係パターン（パートナー・顧客/供給者・腐敗防止層等）を習得し、マイクロサービスの境界設計と連携設計を自走して実践できるようになる。</p>
+      </div>
+      <div class="purpose-item">
+        <h4>3. 技術設計と組織設計を同時に解けるようになる</h4>
+        <p>コンウェイの法則・チーム＝コンテキスト・責務と意思決定の分離を理解し、チーム構成とアーキテクチャを整合させた組織設計の意思決定ができるようになる。</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 到達目標 -->
+  <div class="section">
+    <h2 class="section-title">到達目標（受講後に身につくスキル）</h2>
+    <div class="goal-grid">
+
+      <div class="goal-card">
+        <h4><span>🔍</span>整理</h4>
+        <ul>
+          <li>ドメインとサブドメイン（コア・支援・汎用）を識別し、投資判断の根拠を言語化できる</li>
+          <li>ドメインビジョン・コアドメインチャートでチームの設計方針を整理・共有できる</li>
+        </ul>
+      </div>
+
+      <div class="goal-card">
+        <h4><span>🗂️</span>境界</h4>
+        <ul>
+          <li>ユビキタス言語を定義し、チーム全体で同じ言葉・同じ判断ができる環境を構築できる</li>
+          <li>境界付けられたコンテキストを設計し、「同じ名前でも意味が違う」問題を解決できる</li>
+        </ul>
+      </div>
+
+      <div class="goal-card">
+        <h4><span>🔗</span>連携</h4>
+        <ul>
+          <li>コンテキストマップを作成し、コンテキスト間の関係を可視化できる</li>
+          <li>パートナー・顧客/供給者・腐敗防止層・公開言語などの関係パターンを使い分けられる</li>
+          <li>マイクロサービスの分散トランザクション問題とDDDによる解決策を説明できる</li>
+        </ul>
+      </div>
+
+      <div class="goal-card">
+        <h4><span>🏢</span>組織</h4>
+        <ul>
+          <li>コンウェイの法則を理解し、チーム構成とアーキテクチャの整合性を設計できる</li>
+          <li>チーム＝コンテキストの原則に基づき、責務と意思決定の分離を実践できる</li>
+          <li>エンジニア・マネージャー・CTOが同じ語彙でDDDの設計を議論できる環境を構築できる</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- こんな企業にお勧め -->
+  <div class="section">
+    <h2 class="section-title">こんな企業にお勧めします</h2>
+    <div class="recommend-grid">
+      <div class="recommend-card"><p>技術設計と組織設計を同時に解き、<span>DDDを組織全体の設計語彙</span>として定着させたい</p></div>
+      <div class="recommend-card"><p>コンウェイの法則を理解した上で、<span>チーム構成とアーキテクチャを整合</span>させたい</p></div>
+      <div class="recommend-card"><p>言語・技術スタックを問わず、<span>すべてのエンジニアとマネージャーにDDDの戦略的思考</span>を習得させたい</p></div>
+    </div>
+
+    <div class="next-step">
+      <p>📌 本研修は<strong>ドメイン駆動設計実践Java編・C#編・TypeScript編の上流工程</strong>として設計されています。<br>
+      戦略的設計を先に習得することで、戦術的設計（実装）の意図が明確になり、シリーズ全体の学習効果が最大化されます。</p>
+    </div>
+  </div>
+
+  <!-- カリキュラム -->
+  <div class="section">
+    <h2 class="section-title">カリキュラム詳細（全1日間）</h2>
+    <div class="table-wrap">
+      <table class="curriculum">
+        <thead>
+          <tr>
+            <th style="text-align:center;">日程</th>
+            <th>章・学習テーマ</th>
+            <th>学習内容・習得スキル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="day-cell" rowspan="6">1日間</td>
+            <td class="ch-odd">第1章：戦略的設計の全体像</td>
+            <td class="co-odd">「整理→境界→連携→組織」という4区分の意思決定ロードマップを把握する。戦略的設計と戦術的設計の違い・なぜ戦略的設計が先に必要かを理解する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第2章：問題空間を理解・整理する</td>
+            <td class="co-even">ドメインとサブドメイン（コア・支援・汎用）の識別・投資判断の根拠の言語化・ドメインビジョン・コアドメインチャートを習得する。業務・機能とドメインの違いをEC業務例で体感する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第3章：言語とモデルの一貫性を保つ</td>
+            <td class="co-odd">ユビキタス言語の定義方法・境界付けられたコンテキストの設計原則・「同じ名前でも意味が違う」問題の解決方法を習得する。バケツ図（商品モデルの各コンテキストでの違い）を通じて直感的に理解する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第4章：コンテキスト間の関係を設計する</td>
+            <td class="co-even">コンテキストマップの作成方法・パートナー・顧客/供給者・順応者・共有カーネル・別々の道・腐敗防止層（ACL）・公開言語の各関係パターンを習得する。「連携のルールをチーム間で合意する」設計プロセスを実践する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第5章：戦略的設計と組織を結びつける</td>
+            <td class="co-odd">コンウェイの法則・チーム＝コンテキスト・責務と意思決定の分離を習得する。チーム構成がアーキテクチャを決めるという原則を理解し、技術設計と組織設計を整合させる意思決定を実践する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第6章：マイクロサービスのアンチパターンとDDDによる解決策</td>
+            <td class="co-even">分散トランザクション問題（在庫DB失敗時の注文DB整合性）・マイクロサービスの典型的なアンチパターンを理解し、DDDの戦略的設計による解決アプローチを習得する。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">※ 各章末にディスカッション演習を実施します。自社サービスのコンテキスト境界・問題点・改善案をチームで議論します。</p>
+    <p class="note">※ 午前に第1〜3章（整理・境界）、午後に第4〜6章（連携・組織・アンチパターン）を想定しています。</p>
+  </div>
+
+  <!-- 前提知識 -->
+  <div class="section">
+    <h2 class="section-title">受講にあたっての前提知識</h2>
+    <div class="prereq-card">
+
+      <h4>開発経験・基礎知識</h4>
+      <ul>
+        <li>任意の言語（Java・C#・TypeScript等）を用いたソフトウェア開発の実務経験があること。</li>
+        <li>オブジェクト指向プログラミングの基本概念（クラス・インターフェイス・継承）を理解していること。</li>
+        <li>REST APIの基本概念（エンドポイント・リクエスト・レスポンス）を理解していること。</li>
+      </ul>
+
+      <h4>システム設計の基礎知識</h4>
+      <ul>
+        <li>レイヤードアーキテクチャ（プレゼンテーション層・ビジネスロジック層・データ層）の概念を理解していること。</li>
+        <li>データベース（RDB）の基本概念を理解していること。</li>
+      </ul>
+
+      <h4>あると望ましい知識 <span class="rec-tag">推奨</span></h4>
+      <ul>
+        <li>DDDの戦術的設計（Value Object・Entity・Repository）の基礎概念の理解。</li>
+        <li>マイクロサービスアーキテクチャの概念的な理解。</li>
+        <li>チーム開発・プロジェクトリーダー・アーキテクト・マネージャーとしての実務経験。</li>
+      </ul>
+
+    </div>
+  </div>
+
+  <!-- 必要な受講環境 -->
+  <div class="section">
+    <h2 class="section-title">必要な受講環境</h2>
+    <div class="table-wrap">
+      <table class="env-table">
+        <thead>
+          <tr><th style="width:22%;">区分</th><th style="width:38%;">環境 / ツール</th><th>役割・用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="ev-label">PC・OS</td><td class="ev-odd">Windows 11 / macOS（どちらでも可）</td><td class="ev-odd">研修用PCの基本環境</td></tr>
+          <tr><td class="ev-label">ブラウザ</td><td class="ev-even">Google Chrome / Microsoft Edge</td><td class="ev-even">スライド閲覧・演習資料の参照</td></tr>
+          <tr><td class="ev-label">描画ツール</td><td class="ev-odd">draw.io（無料・ブラウザで利用可）</td><td class="ev-odd">コンテキストマップ・ドメインモデルの作図演習</td></tr>
+          <tr><td class="ev-label">ドキュメント</td><td class="ev-even">Microsoft Word / Google Docs</td><td class="ev-even">ユビキタス言語・ドメインビジョンの記述演習</td></tr>
+          <tr><td class="ev-label">ホワイトボード</td><td class="ev-odd">物理またはオンライン（Miro・FigJam等）</td><td class="ev-odd">自社サービスのコンテキスト境界ディスカッション演習</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">※ プログラミング環境・IDEは不要です。本コースはコーディング演習を含みません。</p>
+    <p class="note">※ Java・C#・TypeScriptなど特定の言語環境は必要ありません。</p>
+    <p class="note">※ ディスカッション演習では自社システムの概要・現在のチーム構成を事前に整理しておくと演習効果が高まります。</p>
+  </div>
+
+</div>
+</body>
+</html>
