@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoモダンWeb開発</title>
+<style>
+  body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; color: #1a2a1a; margin: 0; padding: 20px; background: #f0f8f2; }
+  * { box-sizing: border-box; }
+
+  .hero {
+    text-align: center; padding: 48px 24px;
+    background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 60%, #388e3c 100%);
+    color: #fff; border-radius: 8px; margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(27,94,32,0.35); position: relative; overflow: hidden;
+  }
+  .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:240px; height:240px; border-radius:50%; background:rgba(255,255,255,0.07); }
+  .hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.04); }
+  .hero h1 { margin:0 0 10px; font-size:32px; font-weight:700; color:#fff; position:relative; z-index:1; }
+  .hero h2 { margin:0; font-size:18px; font-weight:400; color:rgba(255,255,255,0.85); position:relative; z-index:1; }
+  .hero-sub { margin-top:12px; position:relative; z-index:1; }
+  .hero-badge { display:inline-block; font-size:12px; padding:4px 12px; border-radius:20px; background:rgba(255,255,255,0.2); color:#fff; margin:0 4px; border:1px solid rgba(255,255,255,0.3); }
+
+  .catchcopy { text-align:center; margin-bottom:50px; padding:20px; }
+  .catchcopy p { font-size:22px; font-weight:700; color:#2e7d32; margin:0; line-height:1.7; }
+
+  .section { margin-bottom:50px; }
+  .section-title { font-size:22px; color:#1a2a1a; border-left:6px solid #4caf50; padding-left:15px; margin-bottom:30px; font-weight:700; }
+
+  .overview-card { background:#fff; border:1px solid #c8e6c9; border-radius:8px; padding:30px; box-shadow:0 2px 8px rgba(27,94,32,0.07); }
+  .overview-card p { font-size:16px; line-height:1.8; color:#1a3a1a; margin:0 0 16px; }
+  .series-box { background:#f1f8e9; border:1px solid #c8e6c9; border-left:4px solid #4caf50; border-radius:8px; padding:14px 18px; margin-top:4px; }
+  .series-box p { font-size:14px; color:#2a4a2a; margin:0; line-height:1.7; }
+  .series-box strong { color:#2e7d32; }
+
+  .feature-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .feature-card { flex:1; min-width:260px; background:#fff; border:1px solid #c8e6c9; border-top:5px solid #2e7d32; border-radius:4px 4px 8px 8px; padding:25px; box-shadow:0 2px 5px rgba(27,94,32,0.07); }
+  .feature-card .icon { font-size:28px; margin-bottom:12px; display:block; }
+  .feature-card h4 { margin:0 0 10px; color:#1a2a1a; font-size:17px; }
+  .feature-card p { font-size:14px; line-height:1.7; color:#1a3a1a; margin:0; }
+
+  .goal-card { background:#fff; border:1px solid #c8e6c9; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(27,94,32,0.07); }
+  .goal-card ul { font-size:15px; line-height:1.8; color:#1a3a1a; padding-left:20px; margin:0; }
+  .goal-card ul li { margin-bottom:8px; }
+
+  .recommend-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .recommend-card { flex:1; min-width:220px; background:#fff; border:1px solid #c8e6c9; border-radius:8px; padding:22px; box-shadow:0 2px 4px rgba(27,94,32,0.05); }
+  .recommend-card p { font-size:15px; font-weight:700; color:#1a2a1a; line-height:1.6; margin:0; }
+  .recommend-card p span { color:#2e7d32; }
+
+  .prereq-card { background:#fff; border:1px solid #c8e6c9; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(27,94,32,0.07); }
+  .prereq-card ul { font-size:15px; line-height:1.8; color:#1a3a1a; padding-left:20px; margin:0; }
+  .prereq-card ul li { margin-bottom:6px; }
+  .rec-tag { display:inline-block; font-size:10px; padding:1px 8px; border-radius:20px; background:#F1F8E9; color:#33691E; font-weight:500; margin-left:6px; vertical-align:middle; }
+
+  .table-wrap { overflow-x:auto; }
+
+  table.curriculum { width:100%; border-collapse:collapse; min-width:700px; line-height:1.6; box-shadow:0 2px 5px rgba(27,94,32,0.08); }
+  table.curriculum thead tr { color:#fff; background:#2e7d32; }
+  table.curriculum thead th { padding:14px 12px; font-weight:700; text-align:left; border:1px solid #1b5e20; }
+  table.curriculum thead th:first-child { text-align:center; width:8%; }
+  table.curriculum thead th:nth-child(2) { width:30%; }
+  table.curriculum tbody td { padding:12px; border:1px solid #c8e6c9; color:#1a2a1a; vertical-align:top; font-size:14px; line-height:1.7; }
+  .day-cell { font-weight:700; text-align:center; white-space:nowrap; }
+  .d1 { background:#dcedc8; color:#1b5e20; }
+  .d2 { background:#c5e1a5; color:#1b5e20; }
+  .d3 { background:#aed581; color:#1b5e20; }
+  .ch-odd  { font-weight:700; background:#f1f8e9; color:#2e7d32; }
+  .ch-even { font-weight:700; background:#fff; color:#2e7d32; }
+  .co-odd  { background:#f9fdf5; }
+  .co-even { background:#fff; }
+
+  table.env-table { width:100%; border-collapse:collapse; min-width:400px; border:1px solid #2e7d32; line-height:1.5; }
+  table.env-table thead tr { background:#2e7d32; color:#fff; }
+  table.env-table thead th { padding:10px; border:1px solid #1b5e20; text-align:left; font-weight:700; font-size:14px; }
+  table.env-table tbody td { padding:8px 10px; border:1px solid #c8e6c9; font-size:13px; color:#1a2a1a; }
+  .ev-label { font-weight:700; background:#dcedc8; color:#1b5e20; }
+  .ev-odd  { background:#f1f8e9; }
+  .ev-even { background:#fff; }
+
+  .note { font-size:13px; color:#4a7a4a; margin-top:10px; padding-left:4px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>GoモダンWeb開発</h1>
+  <h2>DDD×Docker×REST APIで実現する、実務直結のWebサービス開発</h2>
+  <div class="hero-sub">
+    <span class="hero-badge">Gin</span>
+    <span class="hero-badge">GORM</span>
+    <span class="hero-badge">Docker</span>
+    <span class="hero-badge">DDD</span>
+    <span class="hero-badge">Swagger UI</span>
+    <span class="hero-badge">Playwright</span>
+  </div>
+</div>
+
+<div class="catchcopy">
+  <p>ドメイン駆動設計×Go。<br>変化に強いWebAPIを、現場の技術スタックで構築する。</p>
+</div>
+
+<div style="font-family:'Segoe UI',sans-serif; color:#1a2a1a;">
+
+  <!-- 研修概要 -->
+  <div class="section">
+    <h2 class="section-title">研修概要</h2>
+    <div class="overview-card">
+      <p>ドメイン駆動設計の考え方をGoで実装する——本研修はその実践の場です。Docker環境構築・DDD4層構造のREST API実装・Swagger UIによるAPI仕様公開・Playwright for GoによるE2Eテストまで、実務そのままの技術スタックでGoによるWebサービス開発を習得します。</p>
+      <div class="series-box">
+        <p>📌 本研修は<strong>Goプログラミング基礎</strong>の続編として設計されています。Go言語の基礎を習得した後、本研修でWebAPI・DB・フロント開発を習得することで、Go言語による実務開発を完全にカバーします。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 本研修の特徴 -->
+  <div class="section">
+    <h2 class="section-title">本研修の特徴</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="icon">🧩</span>
+        <h4>ドメイン駆動設計をGoで実装する</h4>
+        <p>値オブジェクト・エンティティ・集約・リポジトリ・アダプタをGo言語で実装し、DDDの設計思想を実務レベルで体得します。</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">🌐</span>
+        <h4>Gin・GORM・Swagger UIで実務直結のREST APIを構築</h4>
+        <p>実務で広く使われるGin（Webフレームワーク）・GORM（O/Rマッパー）・Swagger UI（API仕様書）を組み合わせたREST API開発を実践します。</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">🔄</span>
+        <h4>フロントからバックエンド・E2Eテストまで全工程を網羅</h4>
+        <p>REST APIサービス・フロントアプリケーション・E2Eテストまで、Webサービス開発の全工程をGoで習得します。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 到達目標 -->
+  <div class="section">
+    <h2 class="section-title">到達目標（受講後に身につくスキル）</h2>
+    <div class="goal-card">
+      <ul>
+        <li>ドメイン駆動設計の戦術的パターン（値オブジェクト・エンティティ・リポジトリ）をGoで実装できる</li>
+        <li>Gin・GORM・Swagger UIを用いたREST APIサービスを設計・実装・公開できる</li>
+        <li>Playwright for Goを用いてE2Eテストを実装し、APIの品質を検証できる</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- こんな企業にお勧め -->
+  <div class="section">
+    <h2 class="section-title">こんな企業にお勧めします</h2>
+    <div class="recommend-grid">
+      <div class="recommend-card"><p>マイクロサービス化に向けて<span>GoによるAPIサービス開発力を強化</span>したい</p></div>
+      <div class="recommend-card"><p>DDD導入済み、またはこれから導入を検討しており、<span>GoでDDDを実践</span>したい</p></div>
+      <div class="recommend-card"><p><span>クラウドネイティブ環境でのWebサービス開発</span>にGoを活用したい</p></div>
+      <div class="recommend-card"><p>フロントからバックエンド・E2Eテストまで<span>一貫した開発スキル</span>を習得させたい</p></div>
+    </div>
+  </div>
+
+  <!-- カリキュラム詳細 -->
+  <div class="section">
+    <h2 class="section-title">カリキュラム詳細（全3日間）</h2>
+    <div class="table-wrap">
+      <table class="curriculum">
+        <thead>
+          <tr>
+            <th style="text-align:center;">日程</th>
+            <th>章・学習テーマ</th>
+            <th>学習内容・習得スキル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="day-cell d1" rowspan="4">1日目</td>
+            <td class="ch-odd">環境構築（演習-00）</td>
+            <td class="co-odd">Docker・docker-compose・DevContainer・MySQL・phpMyAdminによる開発環境を構築する。カスタムネットワーク・Goモジュール初期化まで一連の環境セットアップを習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第1部：サービスアプリケーションの概要</td>
+            <td class="co-even">サービスアプリケーションの要件・DDD4層アーキテクチャ・パッケージ構成・fxコンテナ（依存性注入）の概要を理解する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第1部：ドメイン層の実装</td>
+            <td class="co-odd">値オブジェクト・エンティティ・集約・リポジトリインターフェイス・アダプタインターフェイスを設計・実装する。ドメイン層の品質検証を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第1部：インフラストラクチャ層の実装</td>
+            <td class="co-even">GORMのModelクラス・DbContext・CRUD操作・リポジトリとアダプタの実装を習得する。</td>
+          </tr>
+          <tr>
+            <td class="day-cell d2" rowspan="3">2日目</td>
+            <td class="ch-odd">第1部：アプリケーション層の実装</td>
+            <td class="co-odd">DTO・サービスの設計・fxコンテナによる依存性注入・トランザクション制御・品質検証を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第1部：プレゼンテーション層の実装（演習-30）</td>
+            <td class="co-even">Gin・CORS・Swagger UI・DTOとリクエストハンドラ・ルーティング・フックを実装する。main()関数を実装しAPI動作を確認する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第2部：サービス層</td>
+            <td class="co-odd">Config（構成管理）・net/httpパッケージ・ドメイン層・インフラ層・サービス層・テストフレームワークを習得する。</td>
+          </tr>
+          <tr>
+            <td class="day-cell d3" rowspan="2">3日目</td>
+            <td class="ch-odd">第3部：フロントアプリケーション</td>
+            <td class="co-odd">フロントアプリケーションの概要・アーキテクチャ・Echo（Webフレームワーク）・Jet Template Engine・セッション管理・プレゼンテーション層の設計・実装を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第4部：外部品質の検証</td>
+            <td class="co-even">Playwright for Goの概要・テストの前準備・Viewへのアクセス・Cookieへのアクセス・品質の検証を習得する。E2Eテストを実装し、APIの外部品質を検証する。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">※ 各部の演習課題には実行結果・スクリーンショットが付属しており、受講者が自己確認できます。</p>
+  </div>
+
+  <!-- 前提知識 -->
+  <div class="section">
+    <h2 class="section-title">受講にあたっての前提知識</h2>
+    <div class="prereq-card">
+      <ul>
+        <li>Goプログラミング基礎の受講経験、またはGo言語の基本構文・インターフェイス・エラー処理を理解していること</li>
+        <li>基本的なデータベース設計の知識（テーブル・主キー・外部キー・SQL）</li>
+        <li>コマンドライン（ターミナル）の基本操作ができること</li>
+        <li>Dockerの基本概念（コンテナ・イメージ）を理解していること <span class="rec-tag">推奨</span>　※研修内で解説あり</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 受講環境 -->
+  <div class="section">
+    <h2 class="section-title">必要な受講環境</h2>
+    <div class="table-wrap">
+      <table class="env-table">
+        <thead>
+          <tr><th style="width:20%;">区分</th><th style="width:38%;">環境 / ツール</th><th>役割・用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="ev-label">PC</td><td class="ev-odd">Windows 11</td><td class="ev-odd">受講用PC（WSL2環境が必要なためWindowsを推奨）</td></tr>
+          <tr><td class="ev-label">IDE</td><td class="ev-even">Visual Studio Code</td><td class="ev-even">コード編集・デバッグ・ターミナル操作</td></tr>
+          <tr><td class="ev-label">WSL2</td><td class="ev-odd">Ubuntu 22.04 LTS</td><td class="ev-odd">Linux環境でのGoアプリケーション実行</td></tr>
+          <tr><td class="ev-label">コンテナ</td><td class="ev-even">Docker Desktop</td><td class="ev-even">コンテナ環境の構築・管理</td></tr>
+          <tr><td class="ev-label">SDK</td><td class="ev-odd">Go 1.23.2</td><td class="ev-odd">Goアプリケーション開発・実行（コンテナ内）</td></tr>
+          <tr><td class="ev-label">DB</td><td class="ev-even">MySQL 8.1</td><td class="ev-even">サンプル・演習アプリのデータベース（コンテナ内）</td></tr>
+          <tr><td class="ev-label">DBツール</td><td class="ev-odd">phpMyAdmin</td><td class="ev-odd">データベースの接続・操作・確認（ブラウザ経由）</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-even">Dev Containers</td><td class="ev-even">コンテナ内での開発環境構築</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-odd">Go（Go Team at Google）</td><td class="ev-odd">Go言語のコード補完・デバッグ・Lint支援</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-even">Ginkgo（onsi.ginkgo）</td><td class="ev-even">テストフレームワークの支援</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
