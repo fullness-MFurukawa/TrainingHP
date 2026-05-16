@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ハンズオンで学ぶGoプログラミング基礎</title>
+<style>
+  body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; color: #1a2a2a; margin: 0; padding: 20px; background: #f0f8f8; }
+  * { box-sizing: border-box; }
+
+  .hero {
+    text-align: center; padding: 48px 24px;
+    background: linear-gradient(135deg, #00838f 0%, #0097a7 60%, #00bcd4 100%);
+    color: #fff; border-radius: 8px; margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0,131,143,0.35); position: relative; overflow: hidden;
+  }
+  .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:240px; height:240px; border-radius:50%; background:rgba(255,255,255,0.08); }
+  .hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.05); }
+  .hero h1 { margin:0 0 10px; font-size:32px; font-weight:700; color:#fff; position:relative; z-index:1; }
+  .hero h2 { margin:0; font-size:18px; font-weight:400; color:rgba(255,255,255,0.85); position:relative; z-index:1; }
+
+  .catchcopy { text-align:center; margin-bottom:50px; padding:20px; }
+  .catchcopy p { font-size:22px; font-weight:700; color:#00838f; margin:0; line-height:1.7; }
+
+  .section { margin-bottom:50px; }
+  .section-title { font-size:22px; color:#1a2a2a; border-left:6px solid #00bcd4; padding-left:15px; margin-bottom:30px; font-weight:700; }
+
+  .overview-card { background:#fff; border:1px solid #b2ebf2; border-radius:8px; padding:30px; box-shadow:0 2px 8px rgba(0,131,143,0.07); }
+  .overview-card p { font-size:16px; line-height:1.8; color:#1a3a3a; margin:0; }
+
+  .feature-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .feature-card { flex:1; min-width:260px; background:#fff; border:1px solid #b2ebf2; border-top:5px solid #00838f; border-radius:4px 4px 8px 8px; padding:25px; box-shadow:0 2px 5px rgba(0,131,143,0.07); }
+  .feature-card .icon { font-size:28px; margin-bottom:12px; display:block; }
+  .feature-card h4 { margin:0 0 10px; color:#1a2a2a; font-size:17px; }
+  .feature-card p { font-size:14px; line-height:1.7; color:#1a3a3a; margin:0; }
+
+  .goal-card { background:#fff; border:1px solid #b2ebf2; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(0,131,143,0.07); }
+  .goal-card ul { font-size:15px; line-height:1.8; color:#1a3a3a; padding-left:20px; margin:0; }
+  .goal-card ul li { margin-bottom:8px; }
+
+  .recommend-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .recommend-card { flex:1; min-width:220px; background:#fff; border:1px solid #b2ebf2; border-radius:8px; padding:22px; box-shadow:0 2px 4px rgba(0,131,143,0.05); }
+  .recommend-card p { font-size:15px; font-weight:700; color:#1a2a2a; line-height:1.6; margin:0; }
+  .recommend-card p span { color:#00838f; }
+
+  .prereq-card { background:#fff; border:1px solid #b2ebf2; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(0,131,143,0.07); }
+  .prereq-card ul { font-size:15px; line-height:1.8; color:#1a3a3a; padding-left:20px; margin:0; }
+  .prereq-card ul li { margin-bottom:6px; }
+  .rec-tag { display:inline-block; font-size:10px; padding:1px 8px; border-radius:20px; background:#E0F7FA; color:#006064; font-weight:500; margin-left:6px; vertical-align:middle; }
+
+  .table-wrap { overflow-x:auto; }
+
+  table.curriculum { width:100%; border-collapse:collapse; min-width:700px; line-height:1.6; box-shadow:0 2px 5px rgba(0,131,143,0.08); }
+  table.curriculum thead tr { color:#fff; background:#00838f; }
+  table.curriculum thead th { padding:14px 12px; font-weight:700; text-align:left; border:1px solid #006064; }
+  table.curriculum thead th:first-child { text-align:center; width:8%; }
+  table.curriculum thead th:nth-child(2) { width:30%; }
+  table.curriculum tbody td { padding:12px; border:1px solid #b2ebf2; color:#1a2a2a; vertical-align:top; font-size:14px; line-height:1.7; }
+  .day-cell { font-weight:700; text-align:center; white-space:nowrap; }
+  .d1 { background:#e0f7fa; color:#006064; }
+  .d2 { background:#b2ebf2; color:#006064; }
+  .ch-odd  { font-weight:700; background:#e8fafb; color:#006064; }
+  .ch-even { font-weight:700; background:#fff; color:#006064; }
+  .co-odd  { background:#f2fdfe; }
+  .co-even { background:#fff; }
+
+  table.env-table { width:100%; border-collapse:collapse; min-width:400px; border:1px solid #00838f; line-height:1.5; }
+  table.env-table thead tr { background:#00838f; color:#fff; }
+  table.env-table thead th { padding:10px; border:1px solid #006064; text-align:left; font-weight:700; font-size:14px; }
+  table.env-table tbody td { padding:8px 10px; border:1px solid #b2ebf2; font-size:13px; color:#1a2a2a; }
+  .ev-label { font-weight:700; background:#e0f7fa; color:#006064; }
+  .ev-odd  { background:#e8fafb; }
+  .ev-even { background:#fff; }
+
+  .note { font-size:13px; color:#4a7a7a; margin-top:10px; padding-left:4px; }
+
+  .version-badge { display:inline-block; font-size:11px; padding:3px 10px; border-radius:20px; background:#E0F7FA; color:#006064; font-weight:500; margin-left:8px; vertical-align:middle; border:1px solid #80deea; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>ハンズオンで学ぶ Goプログラミング基礎</h1>
+  <h2>基本構文から並行処理・テスト・標準パッケージまで体系的に習得する</h2>
+</div>
+
+<div class="catchcopy">
+  <p>シンプルに、速く、確実に。<br>Goで学ぶ、次世代バックエンド開発の基礎。</p>
+</div>
+
+<div style="font-family:'Segoe UI',sans-serif; color:#1a2a2a;">
+
+  <!-- 研修概要 -->
+  <div class="section">
+    <h2 class="section-title">研修概要</h2>
+    <div class="overview-card">
+      <p>クラウドネイティブ開発の主要言語として注目を集めるGo言語。本研修では、基本構文・データ型・関数・インターフェイスから、Go言語の真骨頂である並行処理・テスト・標準パッケージまでを、サンプルコードと演習課題を交えながら実践的に習得します。<span class="version-badge">Go 1.24 対応</span></p>
+    </div>
+  </div>
+
+  <!-- 本研修の特徴 -->
+  <div class="section">
+    <h2 class="section-title">本研修の特徴</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="icon">📚</span>
+        <h4>基本構文から標準パッケージまで全12章で網羅</h4>
+        <p>変数・制御文・データ型・関数・インターフェイスから、テスト・ビルド・クロスコンパイル・標準パッケージまで、Goプログラミングの全体像を体系的に習得します。</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">⚙️</span>
+        <h4>Goの真骨頂、並行処理を実践的に習得</h4>
+        <p>ゴルーチン・チャネル・select文によるGo独自の並行処理モデルを実装例とともに習得。クラウドネイティブ開発に直結するスキルを身につけます。</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">🧪</span>
+        <h4>テスト・ビルド・標準パッケージまで実務直結</h4>
+        <p>testingパッケージ・testifyフレームワークによるテスト実装、go buildによるクロスコンパイル、JSON・ファイル・ロギングなどの標準パッケージ活用まで習得します。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 到達目標 -->
+  <div class="section">
+    <h2 class="section-title">到達目標（受講後に身につくスキル）</h2>
+    <div class="goal-card">
+      <ul>
+        <li>Go言語の基本構文からジェネリクス・インターフェイスまでを理解し、実務レベルのコードが書ける</li>
+        <li>ゴルーチン・チャネル・select文を用いた並行処理プログラムを設計・実装できる</li>
+        <li>テスト・ビルド・標準パッケージを活用して、品質の高いGoアプリケーションを開発できる</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- こんな企業にお勧め -->
+  <div class="section">
+    <h2 class="section-title">こんな企業にお勧めします</h2>
+    <div class="recommend-grid">
+      <div class="recommend-card"><p>DX推進・新規サービス開発に<span>Go言語を採用予定</span></p></div>
+      <div class="recommend-card"><p>スタートアップ・モダンな開発組織で<span>Goを標準言語として位置づけたい</span></p></div>
+      <div class="recommend-card"><p>既存システムのマイクロサービス化に<span>Goを活用したい</span></p></div>
+      <div class="recommend-card"><p>Go言語の特性（<span>シンプル・高速・並行処理</span>）を活かしたプロダクト開発を加速したい</p></div>
+    </div>
+  </div>
+
+  <!-- カリキュラム詳細 -->
+  <div class="section">
+    <h2 class="section-title">カリキュラム詳細（全2日間）</h2>
+    <div class="table-wrap">
+      <table class="curriculum">
+        <thead>
+          <tr>
+            <th style="text-align:center;">日程</th>
+            <th>章・学習テーマ</th>
+            <th>学習内容・習得スキル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="day-cell d1" rowspan="6">1日目</td>
+            <td class="ch-odd">第1章：Go言語の概要</td>
+            <td class="co-odd">Go言語の歴史・主な特徴・バージョン履歴（1.0〜1.24）を理解する。シンプル・高速・並行処理という3つの強みと、クラウドネイティブ開発における位置づけを把握する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第2章：基本構文</td>
+            <td class="co-even">標準出力・コメント・演算子・変数と定数・列挙型・制御文を習得する。Goのシンプルな文法スタイルを実装しながら体得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第3章：データ型</td>
+            <td class="co-odd">文字と文字列・配列・スライス・マップ・構造体・ポインタ・ゼロ値・イテレータ（Go1.23〜）を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第4章：関数</td>
+            <td class="co-even">関数の宣言・多値返却・可変長関数・匿名関数・関数型・遅延実行・ジェネリクス（型パラメータ）を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第5章：メソッド</td>
+            <td class="co-odd">レシーバ・値の変更・ジェネリクスを用いたメソッド設計を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第6章：インターフェイス</td>
+            <td class="co-even">インターフェイスの特徴・空インターフェイス・埋め込み・型アサーション・型switch・ジェネリクスを習得する。</td>
+          </tr>
+          <tr>
+            <td class="day-cell d2" rowspan="6">2日目</td>
+            <td class="ch-odd">第7章：エラー</td>
+            <td class="co-odd">errorインターフェイス・パニック・リカバリ・ランタイムパニック・エラー処理機能の使い分けを習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第8章：並行処理</td>
+            <td class="co-even">ゴルーチン・終了の同期化・チャネル・チャネルを使った送受信・select文による通信制御を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第9章：パッケージ・モジュール</td>
+            <td class="co-odd">Goのパッケージ・import文・Goモジュール・go.modファイル・外部モジュール・モジュールの最適化を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第10章：ビルド</td>
+            <td class="co-even">go buildコマンド・クロスコンパイル・go:embedを習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第11章：テスト</td>
+            <td class="co-odd">Goのテストスタイル・testingパッケージ・testifyフレームワークを習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第12章：標準パッケージ</td>
+            <td class="co-even">日時操作・ファイル・ディレクトリ操作・JSON操作・ロギングを習得する。サンプルコードと演習課題で実践力を定着させる。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">※ 各章にサンプルコードと演習課題を用意しています。模範解答HTMLも提供します。</p>
+  </div>
+
+  <!-- 前提知識 -->
+  <div class="section">
+    <h2 class="section-title">受講にあたっての前提知識</h2>
+    <div class="prereq-card">
+      <ul>
+        <li>いずれかのプログラミング言語での実装経験</li>
+        <li>基本的なプログラミングの概念（変数・条件分岐・ループ・関数）を理解していること</li>
+        <li>コマンドライン（ターミナル）の基本操作ができること</li>
+        <li>オブジェクト指向プログラミングの基礎知識 <span class="rec-tag">推奨</span>　※研修内で解説あり</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 受講環境 -->
+  <div class="section">
+    <h2 class="section-title">必要な受講環境</h2>
+    <div class="table-wrap">
+      <table class="env-table">
+        <thead>
+          <tr><th style="width:20%;">区分</th><th style="width:38%;">環境 / ツール</th><th>役割・用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="ev-label">PC</td><td class="ev-odd">Windows 11 / macOS</td><td class="ev-odd">受講用PC（OS問わず）</td></tr>
+          <tr><td class="ev-label">IDE</td><td class="ev-even">Visual Studio Code</td><td class="ev-even">コード編集・デバッグ・ターミナル操作</td></tr>
+          <tr><td class="ev-label">SDK</td><td class="ev-odd">Go 1.24</td><td class="ev-odd">Goアプリケーション開発・実行</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-even">Go（Go Team at Google）</td><td class="ev-even">Go言語のコード補完・デバッグ・Lint支援</td></tr>
+          <tr><td class="ev-label">ランタイム</td><td class="ev-odd">git</td><td class="ev-odd">外部モジュール取得・バージョン管理</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
