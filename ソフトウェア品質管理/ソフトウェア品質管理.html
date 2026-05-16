@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ソフトウェア品質管理</title>
+<style>
+  body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; color: #0d2b2b; margin: 0; padding: 20px; background: #f0f7f7; }
+  * { box-sizing: border-box; }
+
+  .hero {
+    text-align: center; padding: 48px 24px;
+    background: linear-gradient(135deg, #0d6e6e 0%, #1a8a8a 60%, #2aa8a8 100%);
+    color: #fff; border-radius: 8px; margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(13,110,110,0.3); position: relative; overflow: hidden;
+  }
+  .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:240px; height:240px; border-radius:50%; background:rgba(255,255,255,0.06); }
+  .hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.04); }
+  .hero h1 { margin:0 0 10px; font-size:32px; font-weight:700; color:#fff; position:relative; z-index:1; }
+  .hero h2 { margin:0; font-size:18px; font-weight:400; color:rgba(255,255,255,0.85); position:relative; z-index:1; }
+
+  .catchcopy { text-align:center; margin-bottom:50px; padding:20px; }
+  .catchcopy p { font-size:22px; font-weight:700; color:#0d6e6e; margin:0; line-height:1.7; }
+
+  .section { margin-bottom:50px; }
+  .section-title { font-size:22px; color:#0d2b2b; border-left:6px solid #0d6e6e; padding-left:15px; margin-bottom:30px; font-weight:700; }
+
+  .overview-card { background:#fff; border:1px solid #b2d8d8; border-radius:8px; padding:30px; box-shadow:0 2px 8px rgba(13,110,110,0.07); }
+  .overview-card p { font-size:16px; line-height:1.8; color:#2a4a4a; margin:0; }
+
+  .feature-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .feature-card { flex:1; min-width:260px; background:#fff; border:1px solid #b2d8d8; border-top:5px solid #0d6e6e; border-radius:4px 4px 8px 8px; padding:25px; box-shadow:0 2px 5px rgba(13,110,110,0.07); }
+  .feature-card .icon { font-size:28px; margin-bottom:12px; display:block; }
+  .feature-card h4 { margin:0 0 10px; color:#0d2b2b; font-size:17px; }
+  .feature-card p { font-size:14px; line-height:1.7; color:#2a4a4a; margin:0; }
+
+  .goal-card { background:#fff; border:1px solid #b2d8d8; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(13,110,110,0.07); }
+  .goal-card ul { font-size:15px; line-height:1.8; color:#2a4a4a; padding-left:20px; margin:0; }
+  .goal-card ul li { margin-bottom:8px; }
+
+  .recommend-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .recommend-card { flex:1; min-width:220px; background:#fff; border:1px solid #b2d8d8; border-radius:8px; padding:22px; box-shadow:0 2px 4px rgba(13,110,110,0.05); }
+  .recommend-card p { font-size:15px; font-weight:700; color:#0d2b2b; line-height:1.6; margin:0; }
+  .recommend-card p span { color:#0d6e6e; }
+
+  .prereq-card { background:#fff; border:1px solid #b2d8d8; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(13,110,110,0.07); }
+  .prereq-card ul { font-size:15px; line-height:1.8; color:#2a4a4a; padding-left:20px; margin:0; }
+  .prereq-card ul li { margin-bottom:6px; }
+
+  .table-wrap { overflow-x:auto; }
+
+  table.curriculum { width:100%; border-collapse:collapse; min-width:700px; line-height:1.6; box-shadow:0 2px 5px rgba(13,110,110,0.08); }
+  table.curriculum thead tr { color:#fff; background:#0d6e6e; }
+  table.curriculum thead th { padding:14px 12px; font-weight:700; text-align:left; border:1px solid #0a5050; }
+  table.curriculum thead th:first-child { text-align:center; width:8%; }
+  table.curriculum thead th:nth-child(2) { width:30%; }
+  table.curriculum tbody td { padding:12px; border:1px solid #d4eaea; color:#0d2b2b; vertical-align:top; font-size:14px; line-height:1.7; }
+  .day-cell { font-weight:700; text-align:center; white-space:nowrap; }
+  .d1 { background:#d4eaea; color:#0a5050; }
+  .ch-odd  { font-weight:700; background:#e8f5f5; color:#0a5050; }
+  .ch-even { font-weight:700; background:#fff; color:#0a5050; }
+  .co-odd  { background:#f2fafa; }
+  .co-even { background:#fff; }
+
+  .note { font-size:13px; color:#5a8a8a; margin-top:10px; padding-left:4px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>ソフトウェア品質管理</h1>
+  <h2>定量アプローチで実現する品質の見える化</h2>
+</div>
+
+<div class="catchcopy">
+  <p>見えないバグを、見える化する。<br>品質管理の定量アプローチ。</p>
+</div>
+
+<div style="font-family:'Segoe UI',sans-serif; color:#0d2b2b;">
+
+  <!-- 研修概要 -->
+  <div class="section">
+    <h2 class="section-title">研修概要</h2>
+    <div class="overview-card">
+      <p>本研修は、ソフトウェア品質管理を「なんとなく」ではなく「定量的に」実践できるエンジニア・マネージャーを育成することを目的としています。プロセス品質から利用時の品質まで全レイヤーを網羅し、可視化技法・レビュー技法・評価ツールの活用まで幅広く習得します。</p>
+    </div>
+  </div>
+
+  <!-- 本研修の特徴 -->
+  <div class="section">
+    <h2 class="section-title">本研修の特徴</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="icon">📊</span>
+        <h4>定量指標で品質を数値化する</h4>
+        <p>バグ密度・テスト密度・テストカバレッジなどの指標を活用し、品質の現状を客観的に把握・管理する力を養います。</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">📈</span>
+        <h4>可視化技法でチームの意思決定を支援</h4>
+        <p>PB曲線・パレートチャート・散布図を用いてバグ傾向を可視化し、データに基づいた品質改善の意思決定を実践します。</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">🔐</span>
+        <h4>内部・外部・セキュリティまで多角的に評価</h4>
+        <p>コード品質から機能性・信頼性・脆弱性まで、実務で必要な多角的な品質評価スキルと検証ツールを習得します。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 到達目標 -->
+  <div class="section">
+    <h2 class="section-title">到達目標（受講後に身につくスキル）</h2>
+    <div class="goal-card">
+      <ul>
+        <li>ソフトウェア品質の全体像（プロセス・内部・外部・利用時）を理解し、適切な品質管理プロセスを設計できる</li>
+        <li>定量指標を活用してバグの混入量を推測し、品質の見通しを立てられる</li>
+        <li>ウォークスルー・インスペクション・ピアレビューなどのレビュー技法を実務で活用できる</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- こんな企業にお勧め -->
+  <div class="section">
+    <h2 class="section-title">こんな企業にお勧めします</h2>
+    <div class="recommend-grid">
+      <div class="recommend-card"><p><span>ソフトウェア品質の基礎知識</span>をエンジニア全員に習得させたい</p></div>
+      <div class="recommend-card"><p><span>セキュリティ・脆弱性評価</span>をチームの標準スキルにしたい</p></div>
+      <div class="recommend-card"><p>コードレビューや<span>テスト技法を体系的に学ばせたい</span></p></div>
+      <div class="recommend-card"><p>DX推進に伴い、<span>開発品質の底上げ</span>を図りたい</p></div>
+    </div>
+  </div>
+
+  <!-- カリキュラム詳細 -->
+  <div class="section">
+    <h2 class="section-title">カリキュラム詳細（全1日間）</h2>
+    <div class="table-wrap">
+      <table class="curriculum">
+        <thead>
+          <tr>
+            <th style="text-align:center;">日程</th>
+            <th>章・学習テーマ</th>
+            <th>学習内容・習得スキル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="day-cell d1" rowspan="7">1日目</td>
+            <td class="ch-odd">第1章：ソフトウェア品質管理の基本</td>
+            <td class="co-odd">ソフトウェア品質の全体像（プロセス・内部・外部・利用時）を理解する。バグ管理の基本・品質管理実施原則・バグの分類・バグ許容範囲の設定方法を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第2章：品質評価指標の基本</td>
+            <td class="co-even">バグ密度・テスト密度・リードタイム・変更リクエストレート・テストカバレッジ・顧客満足度など主要な品質評価指標の概念と活用方法を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第3章：内部品質評価指標</td>
+            <td class="co-odd">ファンイン/ファンアウト・凝集度・結合度・コード複雑度・重複コード・モジュール化の評価指標を習得する。SonarQubeなどの静的コード分析ツール・依存関係解析ツール・コード複雑度分析ツールの活用方法を学ぶ。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第4章：外部品質評価指標</td>
+            <td class="co-even">機能性・信頼性・使用性・効率性・変更容易性・移植性・スケーラビリティの評価指標を習得する。Apache JMeterなどのパフォーマンステストツール・ユーザビリティテストツール・アクセシビリティ評価ツールの活用方法を学ぶ。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第5章：セキュリティ・脆弱性評価指標</td>
+            <td class="co-odd">内部・外部品質に影響を与えるセキュリティ評価指標を習得する。SAST・DASTの概念とOWASP ZAPなどのセキュリティテストツール・侵入テストツールの活用方法を学ぶ。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第6章：品質評価技法</td>
+            <td class="co-even">ウォークスルー・公式デザインレビュー・ソフトウェアインスペクション・コードインスペクション・ピアレビューの特徴と実践的な活用方法を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第7章：品質の視覚化と評価</td>
+            <td class="co-odd">散布図・PB曲線・パレートチャートを用いたバグ傾向の可視化と、データに基づいた品質評価・意思決定の方法を習得する。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 前提知識 -->
+  <div class="section">
+    <h2 class="section-title">受講にあたっての前提知識</h2>
+    <div class="prereq-card">
+      <ul>
+        <li>ソフトウェア開発の基礎知識（開発工程・テストの基本概念）</li>
+        <li>プログラミングの基礎知識（言語は問わない）</li>
+        <li>基本的なPC・ツール操作ができること</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
