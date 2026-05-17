@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BDDで学ぶAI協働型テスト仕様書作成</title>
+<style>
+  body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; color: #1a1a2e; margin: 0; padding: 20px; background: #f5f5f0; }
+  * { box-sizing: border-box; }
+
+  .hero {
+    text-align: center; padding: 48px 24px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+    color: #fff; border-radius: 8px; margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(26,26,46,0.40); position: relative; overflow: hidden;
+  }
+  .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:240px; height:240px; border-radius:50%; background:rgba(212,175,55,0.08); }
+  .hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(212,175,55,0.05); }
+  .hero h1 { margin:0 0 10px; font-size:32px; font-weight:700; color:#fff; position:relative; z-index:1; }
+  .hero h1 span { color:#d4af37; }
+  .hero h2 { margin:0; font-size:18px; font-weight:400; color:rgba(255,255,255,0.80); position:relative; z-index:1; }
+  .hero-sub { margin-top:12px; position:relative; z-index:1; }
+  .hero-badge { display:inline-block; font-size:12px; padding:4px 12px; border-radius:20px; background:rgba(212,175,55,0.2); color:#d4af37; margin:0 4px; border:1px solid rgba(212,175,55,0.4); }
+
+  .catchcopy { text-align:center; margin-bottom:50px; padding:20px; }
+  .catchcopy p { font-size:22px; font-weight:700; color:#0f3460; margin:0; line-height:1.7; }
+
+  .section { margin-bottom:50px; }
+  .section-title { font-size:22px; color:#1a1a2e; border-left:6px solid #d4af37; padding-left:15px; margin-bottom:30px; font-weight:700; }
+
+  .overview-card { background:#fff; border:1px solid #e8e0c8; border-radius:8px; padding:30px; box-shadow:0 2px 8px rgba(26,26,46,0.07); }
+  .overview-card p { font-size:16px; line-height:1.8; color:#1a1a2e; margin:0 0 16px; }
+  .concept-box { background:#faf8f0; border:1px solid #e8e0c8; border-left:4px solid #d4af37; border-radius:8px; padding:14px 18px; margin-top:4px; }
+  .concept-box p { font-size:14px; color:#3a3a2e; margin:0; line-height:1.7; }
+  .concept-box strong { color:#8b6914; }
+
+  .feature-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .feature-card { flex:1; min-width:260px; background:#fff; border:1px solid #e8e0c8; border-top:5px solid #0f3460; border-radius:4px 4px 8px 8px; padding:25px; box-shadow:0 2px 5px rgba(26,26,46,0.07); }
+  .feature-card .icon { font-size:28px; margin-bottom:12px; display:block; }
+  .feature-card h4 { margin:0 0 10px; color:#1a1a2e; font-size:17px; }
+  .feature-card p { font-size:14px; line-height:1.7; color:#2a2a3e; margin:0; }
+
+  .goal-card { background:#fff; border:1px solid #e8e0c8; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(26,26,46,0.07); }
+  .goal-card ul { font-size:15px; line-height:1.8; color:#2a2a3e; padding-left:20px; margin:0; }
+  .goal-card ul li { margin-bottom:8px; }
+
+  .recommend-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .recommend-card { flex:1; min-width:220px; background:#fff; border:1px solid #e8e0c8; border-radius:8px; padding:22px; box-shadow:0 2px 4px rgba(26,26,46,0.05); }
+  .recommend-card p { font-size:15px; font-weight:700; color:#1a1a2e; line-height:1.6; margin:0; }
+  .recommend-card p span { color:#0f3460; }
+
+  .prereq-card { background:#fff; border:1px solid #e8e0c8; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(26,26,46,0.07); }
+  .prereq-card ul { font-size:15px; line-height:1.8; color:#2a2a3e; padding-left:20px; margin:0; }
+  .prereq-card ul li { margin-bottom:6px; }
+
+  .table-wrap { overflow-x:auto; }
+
+  table.curriculum { width:100%; border-collapse:collapse; min-width:700px; line-height:1.6; box-shadow:0 2px 5px rgba(26,26,46,0.08); }
+  table.curriculum thead tr { color:#fff; background:#16213e; }
+  table.curriculum thead th { padding:14px 12px; font-weight:700; text-align:left; border:1px solid #0f3460; }
+  table.curriculum thead th:first-child { text-align:center; width:8%; }
+  table.curriculum thead th:nth-child(2) { width:30%; }
+  table.curriculum tbody td { padding:12px; border:1px solid #e8e0c8; color:#1a1a2e; vertical-align:top; font-size:14px; line-height:1.7; }
+  .day-cell { font-weight:700; text-align:center; white-space:nowrap; background:#e8e4d0; color:#5a4a10; }
+  .ch-odd  { font-weight:700; background:#faf8f0; color:#5a4a10; }
+  .ch-even { font-weight:700; background:#fff; color:#0f3460; }
+  .co-odd  { background:#fdfcf8; }
+  .co-even { background:#fff; }
+
+  table.env-table { width:100%; border-collapse:collapse; min-width:400px; border:1px solid #16213e; line-height:1.5; }
+  table.env-table thead tr { background:#16213e; color:#fff; }
+  table.env-table thead th { padding:10px; border:1px solid #0f3460; text-align:left; font-weight:700; font-size:14px; }
+  table.env-table tbody td { padding:8px 10px; border:1px solid #e8e0c8; font-size:13px; color:#1a1a2e; }
+  .ev-label { font-weight:700; background:#e8e4d0; color:#5a4a10; }
+  .ev-odd  { background:#faf8f0; }
+  .ev-even { background:#fff; }
+
+  .note { font-size:13px; color:#6a6a5a; margin-top:10px; padding-left:4px; }
+
+  .ai-badge { display:inline-block; font-size:11px; padding:2px 8px; border-radius:12px; background:#faf8f0; color:#8b6914; border:1px solid #d4af37; font-weight:500; margin-left:6px; vertical-align:middle; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>BDDで学ぶ<span>AI協働型</span>テスト仕様書作成</h1>
+  <h2>AIに任せるのではなく、AIと一緒に考えるテスト設計</h2>
+  <div class="hero-sub">
+    <span class="hero-badge">GitHub Copilot</span>
+    <span class="hero-badge">Gherkin</span>
+    <span class="hero-badge">BDD</span>
+    <span class="hero-badge">プロンプト設計</span>
+    <span class="hero-badge">コード不要</span>
+  </div>
+</div>
+
+<div class="catchcopy">
+  <p>AIに任せるのではなく、AIと考える。<br>BDD×AIで変わる、テスト仕様書作成の常識。</p>
+</div>
+
+<div style="font-family:'Segoe UI',sans-serif; color:#1a1a2e;">
+
+  <!-- 研修概要 -->
+  <div class="section">
+    <h2 class="section-title">研修概要</h2>
+    <div class="overview-card">
+      <p>「AIが自動でテスト仕様書を作ってくれる」——そんな期待と現実のギャップを正しく理解することから始まります。本研修では、AIの得意・苦手を踏まえた上で、BDD（Gherkin）とGitHub Copilotを組み合わせた協働型テスト仕様書作成のスキルを習得します。</p>
+      <div class="concept-box">
+        <p>💡 <strong>本研修のコンセプト：</strong>BDDはAIと組み合わせると価値が上がるテスト手法です。単なるコード生成ではなく、<strong>シナリオ作成の上流からAIを活用する</strong>アプローチで、テスト仕様書作成の新しい常識を学びます。特別なAI知識・プログラミング経験は不要です。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 本研修の特徴 -->
+  <div class="section">
+    <h2 class="section-title">本研修の特徴</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="icon">🧩</span>
+        <h4>プログラミング不要で受講できる <span class="ai-badge">コードレス</span></h4>
+        <p>コードを書く演習はありません。テスト仕様書作成に特化した設計により、エンジニアだけでなくQA・テスト担当者・ビジネスアナリストも受講できます。</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">💻</span>
+        <h4>GitHub Copilotを使った段階的な演習</h4>
+        <p>人がシナリオを書く→AIに生成させる→プロンプトを改善する→グループで体験する、という5段階の演習でAI協働型テスト設計を実践的に習得します。</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">🗣️</span>
+        <h4>AI時代のテストマネジメントを議論する</h4>
+        <p>「AIで変わること・変わらないこと」「テスト設計者に求められる新しいスキル」を組織の視点でディスカッションします。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 到達目標 -->
+  <div class="section">
+    <h2 class="section-title">到達目標（受講後に身につくスキル）</h2>
+    <div class="goal-card">
+      <ul>
+        <li>AIが作成したテスト仕様書の品質を評価し、足りない点・おかしい点に気づける</li>
+        <li>BDD（Gherkin）を用いて、AIに伝わる構造化されたテストシナリオを作成できる</li>
+        <li>GitHub Copilotを活用してテスト仕様書を作成し、プロンプトを改善して精度を高められる</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- こんな企業にお勧め -->
+  <div class="section">
+    <h2 class="section-title">こんな企業にお勧めします</h2>
+    <div class="recommend-grid">
+      <div class="recommend-card"><p><span>テスト担当者・QAチーム</span>にAIを正しく活用するスキルを習得させたい</p></div>
+      <div class="recommend-card"><p><span>「AIにテストを任せればいい」</span>という誤解をチームに正したい</p></div>
+      <div class="recommend-card"><p>BDDの導入を検討しており、<span>AI活用と合わせて実践</span>したい</p></div>
+      <div class="recommend-card"><p>エンジニアだけでなく<span>QA・ビジネスアナリストも含めた組織全体</span>でAI活用を進めたい</p></div>
+      <div class="recommend-card"><p>コードを書かないメンバーにも<span>AI協働型テスト設計</span>を習得させたい</p></div>
+      <div class="recommend-card"><p><span>GitHub Copilotを導入済み</span>、またはこれから導入を検討している</p></div>
+    </div>
+  </div>
+
+  <!-- カリキュラム詳細 -->
+  <div class="section">
+    <h2 class="section-title">カリキュラム詳細（全1日間）</h2>
+    <div class="table-wrap">
+      <table class="curriculum">
+        <thead>
+          <tr>
+            <th style="text-align:center;">日程</th>
+            <th>章・学習テーマ</th>
+            <th>学習内容・習得スキル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="day-cell" rowspan="6">1日目</td>
+            <td class="ch-odd">第1章：研修イントロダクション</td>
+            <td class="co-odd">研修のゴール・AI時代のテストとは・AIを使うときの基本スタンスを理解する。AIは「答えを出す道具」ではなく「思考を助ける道具」であるという基本姿勢を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第2章：AIとテスト仕様書作成</td>
+            <td class="co-even">AIが得意なテスト仕様書作成タスク（観点の列挙・入力値パターン・境界値候補・表形式整理）とAIが苦手なタスク（曖昧な仕様・業務ルールの暗黙知・重要度の判断）を理解する。AI生成仕様書の品質を左右するのは入力情報の質であることを習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第3章：BDD（Gherkin）の基礎</td>
+            <td class="co-odd">TDDからBDDへの進化・Given/When/Thenによるシナリオ記述・人にもAIにも伝わる構造化された仕様の書き方を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第4章：Gherkinによる実務的なシナリオ</td>
+            <td class="co-even">Feature・Background・Data Tableを用いた実務的なシナリオ記述を習得する。シナリオが仕様として再利用できることを理解する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第5章：演習で利用するアプリケーション</td>
+            <td class="co-odd">演習で利用する商品管理Webアプリケーションのログイン・商品検索・商品登録の要件を確認し、アプリケーションを実際に操作して振る舞いを把握する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第6章：テスト仕様書作成演習</td>
+            <td class="co-even">プロンプト設計の考え方を習得する。演習1（人によるシナリオ作成）→演習2（AIによるシナリオ生成）→演習3（AIによるテスト仕様書作成）→演習4（プロンプト改善）→演習5（グループによるテスト仕様書作成体験）→ディスカッション（AI時代のテストマネジメント）を通じてAI協働型テスト設計を実践的に習得する。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">※ 特別なAI知識・プログラミング経験は不要です。</p>
+  </div>
+
+  <!-- 前提知識 -->
+  <div class="section">
+    <h2 class="section-title">受講にあたっての前提知識</h2>
+    <div class="prereq-card">
+      <ul>
+        <li>ソフトウェアテストの基本概念（テストケース・テスト仕様書・正常系・異常系）を理解していること</li>
+        <li>基本的なPC・ブラウザ操作ができること</li>
+        <li>GitHubアカウントを保有していること</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 受講環境 -->
+  <div class="section">
+    <h2 class="section-title">必要な受講環境</h2>
+    <div class="table-wrap">
+      <table class="env-table">
+        <thead>
+          <tr><th style="width:20%;">区分</th><th style="width:38%;">環境 / ツール</th><th>役割・用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="ev-label">PC</td><td class="ev-odd">Windows 11</td><td class="ev-odd">受講用PC</td></tr>
+          <tr><td class="ev-label">IDE</td><td class="ev-even">Visual Studio Code</td><td class="ev-even">Gherkinシナリオ・テスト仕様書の作成・編集</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-odd">GitHub Copilot</td><td class="ev-odd">AIによるGherkinシナリオ・テスト仕様書の生成</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-even">GitHub Copilot Chat</td><td class="ev-even">AIとの対話形式によるテスト仕様書作成</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-odd">Cucumber（Gherkin）Full Support</td><td class="ev-odd">Gherkinシナリオの補完・シンタックスハイライト</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-even">Snippets and Syntax Highlight for Gherkin</td><td class="ev-even">Gherkin記法のスニペット・シンタックスハイライト</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-odd">Gherkin Beautifier</td><td class="ev-odd">Gherkinシナリオの整形・フォーマット</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-even">Markdown Preview Enhanced</td><td class="ev-even">テスト仕様書（Markdown）のプレビュー</td></tr>
+          <tr><td class="ev-label">アカウント</td><td class="ev-odd">GitHubアカウント</td><td class="ev-odd">GitHub Copilotの利用</td></tr>
+          <tr><td class="ev-label">アプリケーション</td><td class="ev-even">商品管理Webアプリケーション</td><td class="ev-even">演習5で利用する対象アプリケーション（研修時に提供）</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
