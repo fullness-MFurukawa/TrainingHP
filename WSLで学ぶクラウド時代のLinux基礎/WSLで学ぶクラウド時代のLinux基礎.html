@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WSLで学ぶクラウド時代のLinux基礎</title>
+<style>
+  body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; color: #1a1a1a; margin: 0; padding: 20px; background: #f5f0eb; }
+  * { box-sizing: border-box; }
+
+  .hero {
+    text-align: center; padding: 48px 24px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 60%, #3d2b1a 100%);
+    color: #fff; border-radius: 8px; margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(26,26,26,0.40); position: relative; overflow: hidden;
+  }
+  .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:240px; height:240px; border-radius:50%; background:rgba(230,100,20,0.12); }
+  .hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(230,100,20,0.08); }
+  .hero h1 { margin:0 0 10px; font-size:32px; font-weight:700; color:#fff; position:relative; z-index:1; }
+  .hero h1 span { color:#e67820; }
+  .hero h2 { margin:0; font-size:18px; font-weight:400; color:rgba(255,255,255,0.80); position:relative; z-index:1; }
+  .hero-sub { margin-top:12px; position:relative; z-index:1; }
+  .hero-badge { display:inline-block; font-size:12px; padding:4px 12px; border-radius:20px; background:rgba(230,120,32,0.25); color:#f5a055; margin:0 4px; border:1px solid rgba(230,120,32,0.4); }
+
+  .catchcopy { text-align:center; margin-bottom:50px; padding:20px; }
+  .catchcopy p { font-size:22px; font-weight:700; color:#2d1a0a; margin:0; line-height:1.7; }
+
+  .section { margin-bottom:50px; }
+  .section-title { font-size:22px; color:#1a1a1a; border-left:6px solid #e67820; padding-left:15px; margin-bottom:30px; font-weight:700; }
+
+  .overview-card { background:#fff; border:1px solid #e8d8c8; border-radius:8px; padding:30px; box-shadow:0 2px 8px rgba(26,26,26,0.07); }
+  .overview-card p { font-size:16px; line-height:1.8; color:#1a1a1a; margin:0 0 16px; }
+  .series-box { background:#fdf6f0; border:1px solid #e8d8c8; border-left:4px solid #e67820; border-radius:8px; padding:14px 18px; margin-top:4px; }
+  .series-box p { font-size:14px; color:#3a2010; margin:0; line-height:1.7; }
+  .series-box strong { color:#c05010; }
+
+  .feature-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .feature-card { flex:1; min-width:260px; background:#fff; border:1px solid #e8d8c8; border-top:5px solid #e67820; border-radius:4px 4px 8px 8px; padding:25px; box-shadow:0 2px 5px rgba(26,26,26,0.07); }
+  .feature-card .icon { font-size:28px; margin-bottom:12px; display:block; }
+  .feature-card h4 { margin:0 0 10px; color:#1a1a1a; font-size:17px; }
+  .feature-card p { font-size:14px; line-height:1.7; color:#2a1a0a; margin:0; }
+
+  .goal-card { background:#fff; border:1px solid #e8d8c8; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(26,26,26,0.07); }
+  .goal-card ul { font-size:15px; line-height:1.8; color:#2a1a0a; padding-left:20px; margin:0; }
+  .goal-card ul li { margin-bottom:8px; }
+
+  .recommend-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .recommend-card { flex:1; min-width:220px; background:#fff; border:1px solid #e8d8c8; border-radius:8px; padding:22px; box-shadow:0 2px 4px rgba(26,26,26,0.05); }
+  .recommend-card p { font-size:15px; font-weight:700; color:#1a1a1a; line-height:1.6; margin:0; }
+  .recommend-card p span { color:#c05010; }
+
+  .prereq-card { background:#fff; border:1px solid #e8d8c8; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(26,26,26,0.07); }
+  .prereq-card ul { font-size:15px; line-height:1.8; color:#2a1a0a; padding-left:20px; margin:0; }
+  .prereq-card ul li { margin-bottom:6px; }
+  .rec-tag { display:inline-block; font-size:10px; padding:1px 8px; border-radius:20px; background:#fdf6f0; color:#c05010; font-weight:500; margin-left:6px; vertical-align:middle; border:1px solid #e8d8c8; }
+
+  .table-wrap { overflow-x:auto; }
+
+  table.curriculum { width:100%; border-collapse:collapse; min-width:700px; line-height:1.6; box-shadow:0 2px 5px rgba(26,26,26,0.08); }
+  table.curriculum thead tr { color:#fff; background:#2d2d2d; }
+  table.curriculum thead th { padding:14px 12px; font-weight:700; text-align:left; border:1px solid #1a1a1a; }
+  table.curriculum thead th:first-child { text-align:center; width:8%; }
+  table.curriculum thead th:nth-child(2) { width:30%; }
+  table.curriculum tbody td { padding:12px; border:1px solid #e8d8c8; color:#1a1a1a; vertical-align:top; font-size:14px; line-height:1.7; }
+  .day-cell { font-weight:700; text-align:center; white-space:nowrap; }
+  .d1 { background:#fde8d0; color:#7a3010; }
+  .d2 { background:#f5c8a0; color:#7a3010; }
+  .ch-odd  { font-weight:700; background:#fdf6f0; color:#7a3010; }
+  .ch-even { font-weight:700; background:#fff; color:#2d2d2d; }
+  .co-odd  { background:#fefaf6; }
+  .co-even { background:#fff; }
+
+  table.env-table { width:100%; border-collapse:collapse; min-width:400px; border:1px solid #2d2d2d; line-height:1.5; }
+  table.env-table thead tr { background:#2d2d2d; color:#fff; }
+  table.env-table thead th { padding:10px; border:1px solid #1a1a1a; text-align:left; font-weight:700; font-size:14px; }
+  table.env-table tbody td { padding:8px 10px; border:1px solid #e8d8c8; font-size:13px; color:#1a1a1a; }
+  .ev-label { font-weight:700; background:#fde8d0; color:#7a3010; }
+  .ev-odd  { background:#fdf6f0; }
+  .ev-even { background:#fff; }
+
+  .note { font-size:13px; color:#7a5a3a; margin-top:10px; padding-left:4px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>WSLで学ぶ<span>クラウド時代の</span>Linux基礎</h1>
+  <h2>WindowsからLinuxへ。AWS・Azureへの移行を見据えた実務直結の研修</h2>
+  <div class="hero-sub">
+    <span class="hero-badge">WSL2</span>
+    <span class="hero-badge">Ubuntu 24.04 LTS</span>
+    <span class="hero-badge">SSH・scp</span>
+    <span class="hero-badge">AWS・Azure対応</span>
+    <span class="hero-badge">VS Code</span>
+  </div>
+</div>
+
+<div class="catchcopy">
+  <p>AWS・Azureへの移行を、WSLから始める。<br>クラウド時代のLinux基礎を体系的に習得する。</p>
+</div>
+
+<div style="font-family:'Segoe UI',sans-serif; color:#1a1a1a;">
+
+  <!-- 研修概要 -->
+  <div class="section">
+    <h2 class="section-title">研修概要</h2>
+    <div class="overview-card">
+      <p>クラウドの現場はLinuxで動いています。本研修では、WindowsユーザーがWSL2を使ってLinuxの基本構造から実務コマンドまでを体系的に学び、AWS・Azureのクラウドサーバー操作に移行できる基礎力を習得します。</p>
+      <div class="series-box">
+        <p>📌 本研修は<strong>GoモダンWeb開発</strong>（Docker・WSL2環境）や<strong>GitHubActionsハンズオン</strong>（CI/CDパイプライン）へとつながるシリーズの重要な土台として設計されています。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 本研修の特徴 -->
+  <div class="section">
+    <h2 class="section-title">本研修の特徴</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="icon">🪟</span>
+        <h4>Windowsユーザーが安心して始められる</h4>
+        <p>Windowsとのディレクトリ対応関係・WSLからWindowsファイルへのアクセス方法など、Windows環境からの移行を丁寧にサポートします。Linuxが初めてでも安心して学習できます。</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">🐧</span>
+        <h4>カーネル・シェルから実務コマンドまで体系的に学ぶ</h4>
+        <p>Linuxの基本構造（カーネル・シェル）から、ファイル操作・プロセス管理・パッケージ管理・SSH転送まで全12章で体系的に習得します。</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">☁️</span>
+        <h4>AWS・Azureへの移行を見据えた実務直結の内容</h4>
+        <p>クラウド環境でのLinuxサーバー操作に直結するコマンドと知識を習得します。研修後すぐにクラウド移行プロジェクトに活かせる内容です。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 到達目標 -->
+  <div class="section">
+    <h2 class="section-title">到達目標（受講後に身につくスキル）</h2>
+    <div class="goal-card">
+      <ul>
+        <li>WSL2（Ubuntu）環境でLinuxコマンドを自走して実行できる</li>
+        <li>ファイル検索（find・grep）・圧縮解凍（tar・zip）・SSH転送（scp）を実務で活用できる</li>
+        <li>AWS・Azureのクラウドサーバー操作に必要なLinux基礎力を身につけている</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- こんな企業にお勧め -->
+  <div class="section">
+    <h2 class="section-title">こんな企業にお勧めします</h2>
+    <div class="recommend-grid">
+      <div class="recommend-card"><p>WindowsエンジニアにLinuxの基礎を習得させて<span>クラウド移行に備えたい</span></p></div>
+      <div class="recommend-card"><p>AWS・Azure導入に向けて<span>エンジニアのLinuxスキルを底上げ</span>したい</p></div>
+      <div class="recommend-card"><p>LinuxコマンドがわからずクラウドサーバーやDockerの操作に<span>苦労しているエンジニアがいる</span></p></div>
+      <div class="recommend-card"><p>DX推進に伴い<span>オンプレミスからクラウドへの移行</span>を計画している</p></div>
+      <div class="recommend-card"><p><span>新卒・若手エンジニア</span>にLinuxの基礎を体系的に習得させたい</p></div>
+      <div class="recommend-card"><p>Windowsしか触ったことのないエンジニアに<span>Linux環境を安心して体験</span>させたい</p></div>
+    </div>
+  </div>
+
+  <!-- カリキュラム詳細 -->
+  <div class="section">
+    <h2 class="section-title">カリキュラム詳細（全2日間）</h2>
+    <div class="table-wrap">
+      <table class="curriculum">
+        <thead>
+          <tr>
+            <th style="text-align:center;">日程</th>
+            <th>章・学習テーマ</th>
+            <th>学習内容・習得スキル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="day-cell d1" rowspan="7">1日目</td>
+            <td class="ch-odd">第1章：Linuxの概要</td>
+            <td class="co-odd">Linuxの概要・ディストリビューションの種類・WSL2の概要と特徴を理解する。WindowsとLinuxの関係を把握する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第2章：Linuxのディレクトリ構成</td>
+            <td class="co-even">Linuxのディレクトリ構成・Windowsとの対応関係・WSLからWindowsファイルへのアクセス方法を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第3章：Linuxの仕組み</td>
+            <td class="co-odd">カーネル・シェルの基本構造とそれぞれの役割を理解する。Linuxの基本動作を説明できるようになる。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第4章：Linuxコマンドの全体像</td>
+            <td class="co-even">Linuxコマンドの分類（ファイル操作・プロセス管理・ネットワーク・パッケージ管理・ファイル編集・検索・圧縮・転送）の全体像を把握する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第5章：ファイル操作</td>
+            <td class="co-odd">ls・pwd・cd・mkdir・rmdir・touch・rm・cp・mvコマンドおよびPath（絶対パス・相対パス）を用いたファイル操作を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第6章：プロセス管理</td>
+            <td class="co-even">ps・top・killコマンドを用いたプロセスの確認・管理を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第7章：ネットワーク操作</td>
+            <td class="co-odd">ping・ip・hostnameコマンドを用いたネットワーク確認・操作を習得する。</td>
+          </tr>
+          <tr>
+            <td class="day-cell d2" rowspan="5">2日目</td>
+            <td class="ch-even">第8章：パッケージ管理</td>
+            <td class="co-even">sudo・aptコマンドを用いたパッケージのインストール・更新・削除を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第9章：ファイル編集</td>
+            <td class="co-odd">nano・catコマンドを用いたテキストファイルの作成・編集・確認を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第10章：ファイル検索</td>
+            <td class="co-even">findコマンドによるファイル検索・grepコマンドによる文字列検索を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-odd">第11章：ファイル圧縮・解凍</td>
+            <td class="co-odd">tarコマンドによるアーカイブ・zip/unzipコマンドによる圧縮・解凍を習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第12章：ファイル転送</td>
+            <td class="co-even">SSH（Secure Shell）の概念・sshコマンドによるリモート接続・scpコマンドによるセキュアなファイル転送を習得する。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">※ 各章末に「本章のまとめ」で学習内容を確認します。</p>
+  </div>
+
+  <!-- 前提知識 -->
+  <div class="section">
+    <h2 class="section-title">受講にあたっての前提知識</h2>
+    <div class="prereq-card">
+      <ul>
+        <li>基本的なPC・Windows操作ができること（ファイル操作・エクスプローラー操作）</li>
+        <li>コマンドプロンプトまたはPowerShellの基本操作ができること <span class="rec-tag">推奨</span>　※研修内で解説あり</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 受講環境 -->
+  <div class="section">
+    <h2 class="section-title">必要な受講環境</h2>
+    <div class="table-wrap">
+      <table class="env-table">
+        <thead>
+          <tr><th style="width:20%;">区分</th><th style="width:38%;">環境 / ツール</th><th>役割・用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="ev-label">PC</td><td class="ev-odd">Windows 11</td><td class="ev-odd">受講用PCの基本環境</td></tr>
+          <tr><td class="ev-label">Linux環境</td><td class="ev-even">WSL2（Ubuntu 24.04 LTS）</td><td class="ev-even">Linux操作・演習環境</td></tr>
+          <tr><td class="ev-label">IDE</td><td class="ev-odd">Visual Studio Code</td><td class="ev-odd">コマンド操作環境・ファイル編集</td></tr>
+          <tr><td class="ev-label">ターミナル</td><td class="ev-even">Windows Terminal / PowerShell</td><td class="ev-even">コマンド操作・結果確認</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-odd">WSL</td><td class="ev-odd">VSCodeからWSL環境への接続</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
