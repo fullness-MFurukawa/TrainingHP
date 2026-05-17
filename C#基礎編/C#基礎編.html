@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C#基礎</title>
+<style>
+  body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; color: #0d1f3c; margin: 0; padding: 20px; background: #f0f6ff; }
+  * { box-sizing: border-box; }
+
+  .hero {
+    text-align: center; padding: 48px 24px;
+    background: linear-gradient(135deg, #0d47a1 0%, #1565c0 60%, #1976d2 100%);
+    color: #fff; border-radius: 8px; margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(13,71,161,0.35); position: relative; overflow: hidden;
+  }
+  .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:240px; height:240px; border-radius:50%; background:rgba(255,255,255,0.07); }
+  .hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.04); }
+  .hero h1 { margin:0 0 10px; font-size:32px; font-weight:700; color:#fff; position:relative; z-index:1; }
+  .hero h2 { margin:0; font-size:18px; font-weight:400; color:rgba(255,255,255,0.85); position:relative; z-index:1; }
+  .hero-sub { margin-top:12px; position:relative; z-index:1; }
+  .hero-badge { display:inline-block; font-size:12px; padding:4px 12px; border-radius:20px; background:rgba(255,255,255,0.2); color:#fff; margin:0 4px; border:1px solid rgba(255,255,255,0.3); }
+
+  .catchcopy { text-align:center; margin-bottom:50px; padding:20px; }
+  .catchcopy p { font-size:22px; font-weight:700; color:#0d47a1; margin:0; line-height:1.7; }
+
+  .section { margin-bottom:50px; }
+  .section-title { font-size:22px; color:#0d1f3c; border-left:6px solid #1976d2; padding-left:15px; margin-bottom:30px; font-weight:700; }
+
+  .overview-card { background:#fff; border:1px solid #bbdefb; border-radius:8px; padding:30px; box-shadow:0 2px 8px rgba(13,71,161,0.07); }
+  .overview-card p { font-size:16px; line-height:1.8; color:#0d1f3c; margin:0 0 16px; }
+  .series-box { background:#e3f2fd; border:1px solid #bbdefb; border-left:4px solid #1976d2; border-radius:8px; padding:14px 18px; margin-top:4px; }
+  .series-box p { font-size:14px; color:#0d2a5e; margin:0; line-height:1.7; }
+  .series-box strong { color:#0d47a1; }
+
+  .feature-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .feature-card { flex:1; min-width:260px; background:#fff; border:1px solid #bbdefb; border-top:5px solid #0d47a1; border-radius:4px 4px 8px 8px; padding:25px; box-shadow:0 2px 5px rgba(13,71,161,0.07); }
+  .feature-card .icon { font-size:28px; margin-bottom:12px; display:block; }
+  .feature-card h4 { margin:0 0 10px; color:#0d1f3c; font-size:17px; }
+  .feature-card p { font-size:14px; line-height:1.7; color:#1a2a4a; margin:0; }
+
+  .goal-card { background:#fff; border:1px solid #bbdefb; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(13,71,161,0.07); }
+  .goal-card ul { font-size:15px; line-height:1.8; color:#1a2a4a; padding-left:20px; margin:0; }
+  .goal-card ul li { margin-bottom:8px; }
+
+  .recommend-grid { display:flex; flex-wrap:wrap; gap:20px; }
+  .recommend-card { flex:1; min-width:220px; background:#fff; border:1px solid #bbdefb; border-radius:8px; padding:22px; box-shadow:0 2px 4px rgba(13,71,161,0.05); }
+  .recommend-card p { font-size:15px; font-weight:700; color:#0d1f3c; line-height:1.6; margin:0; }
+  .recommend-card p span { color:#0d47a1; }
+
+  .prereq-card { background:#fff; border:1px solid #bbdefb; border-radius:8px; padding:25px; box-shadow:0 2px 5px rgba(13,71,161,0.07); }
+  .prereq-card ul { font-size:15px; line-height:1.8; color:#1a2a4a; padding-left:20px; margin:0; }
+  .prereq-card ul li { margin-bottom:6px; }
+  .rec-tag { display:inline-block; font-size:10px; padding:1px 8px; border-radius:20px; background:#E3F2FD; color:#0d47a1; font-weight:500; margin-left:6px; vertical-align:middle; }
+
+  .table-wrap { overflow-x:auto; }
+
+  table.curriculum { width:100%; border-collapse:collapse; min-width:700px; line-height:1.6; box-shadow:0 2px 5px rgba(13,71,161,0.08); }
+  table.curriculum thead tr { color:#fff; background:#0d47a1; }
+  table.curriculum thead th { padding:14px 12px; font-weight:700; text-align:left; border:1px solid #0a3880; }
+  table.curriculum thead th:first-child { text-align:center; width:8%; }
+  table.curriculum thead th:nth-child(2) { width:30%; }
+  table.curriculum tbody td { padding:12px; border:1px solid #bbdefb; color:#0d1f3c; vertical-align:top; font-size:14px; line-height:1.7; }
+  .day-cell { font-weight:700; text-align:center; white-space:nowrap; }
+  .d1 { background:#bbdefb; color:#0d47a1; }
+  .d2 { background:#90caf9; color:#0d47a1; }
+  .d3 { background:#64b5f6; color:#0d47a1; }
+  .ch-odd  { font-weight:700; background:#e3f2fd; color:#0d47a1; }
+  .ch-even { font-weight:700; background:#fff; color:#0d47a1; }
+  .co-odd  { background:#f5f9ff; }
+  .co-even { background:#fff; }
+
+  table.env-table { width:100%; border-collapse:collapse; min-width:400px; border:1px solid #0d47a1; line-height:1.5; }
+  table.env-table thead tr { background:#0d47a1; color:#fff; }
+  table.env-table thead th { padding:10px; border:1px solid #0a3880; text-align:left; font-weight:700; font-size:14px; }
+  table.env-table tbody td { padding:8px 10px; border:1px solid #bbdefb; font-size:13px; color:#0d1f3c; }
+  .ev-label { font-weight:700; background:#bbdefb; color:#0d47a1; }
+  .ev-odd  { background:#e3f2fd; }
+  .ev-even { background:#fff; }
+
+  .note { font-size:13px; color:#4a6a9a; margin-top:10px; padding-left:4px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>C# 基礎</h1>
+  <h2>基本構文からオブジェクト指向・クラスライブラリまで体系的に習得する</h2>
+  <div class="hero-sub">
+    <span class="hero-badge">.NET 8</span>
+    <span class="hero-badge">OOP</span>
+    <span class="hero-badge">ドリル演習</span>
+    <span class="hero-badge">模範解答付き</span>
+    <span class="hero-badge">VS Code</span>
+  </div>
+</div>
+
+<div class="catchcopy">
+  <p>C#の第一歩が、エンジニアの可能性を広げる。<br>基本構文からオブジェクト指向まで、確実に身につける。</p>
+</div>
+
+<div style="font-family:'Segoe UI',sans-serif; color:#0d1f3c;">
+
+  <!-- 研修概要 -->
+  <div class="section">
+    <h2 class="section-title">研修概要</h2>
+    <div class="overview-card">
+      <p>本研修では、C#の基本構文からオブジェクト指向プログラミング・クラスライブラリまでを体系的に学びます。ドリルと演習問題に取り組みながら、実務で必要なC#の基礎スキルを確実に習得します。</p>
+      <div class="series-box">
+        <p>📌 本研修は<strong>C#エンジニア育成シリーズの第一歩</strong>として設計されています。本研修で習得したOOP・クラス・インターフェイスの知識は、<strong>C#テストコード基礎 → C# BDD → GitHubActionsハンズオン</strong>へとつながるスキルの土台となります。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 本研修の特徴 -->
+  <div class="section">
+    <h2 class="section-title">本研修の特徴</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="icon">✍️</span>
+        <h4>ドリルと演習で「書ける」を実現する</h4>
+        <p>各章にドリルと演習問題を用意。模範解答付きで自己確認しながら学習できます。手を動かすことで、知識を実践力へ確実に変換します。</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">📐</span>
+        <h4>基本構文からOOPまで段階的に積み上げる</h4>
+        <p>変数・条件分岐・ループなどの基本構文から、クラス・継承・ポリモーフィズムまで15段階の演習で段階的に習得します。</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">🔧</span>
+        <h4>クラスライブラリで実務直結スキルを習得</h4>
+        <p>List・Dictionary・DateTime・ファイルI/O・Newtonsoft.Jsonなど、実務プロジェクトで頻繁に使うクラスライブラリを実践的に習得します。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 到達目標 -->
+  <div class="section">
+    <h2 class="section-title">到達目標（受講後に身につくスキル）</h2>
+    <div class="goal-card">
+      <ul>
+        <li>C#の基本構文（変数・条件分岐・ループ・関数・配列）を理解し、プログラムを実装できる</li>
+        <li>クラス・継承・インターフェイス・ポリモーフィズムなどOOPの概念を理解し、実装できる</li>
+        <li>List・Dictionary・DateTime・ファイルI/Oなどの標準クラスライブラリを実務で活用できる</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- こんな企業にお勧め -->
+  <div class="section">
+    <h2 class="section-title">こんな企業にお勧めします</h2>
+    <div class="recommend-grid">
+      <div class="recommend-card"><p><span>新卒・未経験エンジニア</span>にC#の基礎を体系的に習得させたい</p></div>
+      <div class="recommend-card"><p>他言語エンジニアをC#開発チームにアサインするにあたり<span>スキル転換</span>を図りたい</p></div>
+      <div class="recommend-card"><p>C#エンジニアの<span>基礎スキルにばらつき</span>があり、チーム全体の底上げを図りたい</p></div>
+      <div class="recommend-card"><p>.NET・C#を主要技術スタックとして採用しており、<span>新規メンバーの早期戦力化</span>を図りたい</p></div>
+      <div class="recommend-card"><p>C#テストコード基礎・C# BDDへの<span>ステップアップを見据えた基礎固め</span>をさせたい</p></div>
+    </div>
+  </div>
+
+  <!-- カリキュラム詳細 -->
+  <div class="section">
+    <h2 class="section-title">カリキュラム詳細（全3日間）</h2>
+    <div class="table-wrap">
+      <table class="curriculum">
+        <thead>
+          <tr>
+            <th style="text-align:center;">日程</th>
+            <th>章・学習テーマ</th>
+            <th>学習内容・習得スキル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="day-cell d1" rowspan="2">1日目</td>
+            <td class="ch-odd">第1章：.NETとC#の概要</td>
+            <td class="co-odd">.NETの概要・C#プログラムの作成と実行・演習環境のセットアップを理解する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第2章：基本構文</td>
+            <td class="co-even">プログラムの基本事項・変数と定数・コンソール入出力・演算子・配列・条件分岐（if・switch）・繰り返し（for・while・foreach）・関数を習得する。ドリルと演習で実践力を定着させる。</td>
+          </tr>
+          <tr>
+            <td class="day-cell d2" rowspan="2">2日目</td>
+            <td class="ch-odd">第3章前半：オブジェクト指向（クラス〜継承）</td>
+            <td class="co-odd">クラス・インスタンス・コンストラクタ・オーバーロード・カプセル化（プロパティ・アクセス修飾子）・継承を段階的な演習を通じて習得する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第3章後半：オブジェクト指向（インターフェイス〜例外処理）</td>
+            <td class="co-even">抽象クラスとインターフェイス・ポリモーフィズム・静的メンバ・拡張メソッド・例外処理（try・catch・finally・独自例外）を習得する。</td>
+          </tr>
+          <tr>
+            <td class="day-cell d3" rowspan="2">3日目</td>
+            <td class="ch-odd">第3章：OOP演習・定着</td>
+            <td class="co-odd">前日までに学んだOOPの概念を演習問題（クラス〜ポリモーフィズム〜例外処理）を通じて定着させる。模範解答で自己確認する。</td>
+          </tr>
+          <tr>
+            <td class="ch-even">第4章：クラスライブラリ</td>
+            <td class="co-even">クラスライブラリの概要・基本的なクラス（DateTime・Math・String）・コレクション（List・Dictionary）・ファイルI/O・Newtonsoft.Jsonライブラリを実践的に習得する。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">※ 各章にドリルと演習問題・模範解答が付属しています。オプション章は受講者のレベルに応じて追加可能です。</p>
+  </div>
+
+  <!-- 前提知識 -->
+  <div class="section">
+    <h2 class="section-title">受講にあたっての前提知識</h2>
+    <div class="prereq-card">
+      <ul>
+        <li>基本的なPC・OS操作ができること（ファイル操作・ターミナル操作）</li>
+        <li>プログラミングの基礎概念（変数・条件分岐・ループ）をいずれかの言語で理解していること <span class="rec-tag">推奨</span>　※研修内で解説あり</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 受講環境 -->
+  <div class="section">
+    <h2 class="section-title">必要な受講環境</h2>
+    <div class="table-wrap">
+      <table class="env-table">
+        <thead>
+          <tr><th style="width:20%;">区分</th><th style="width:38%;">環境 / ツール</th><th>役割・用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="ev-label">PC</td><td class="ev-odd">Windows 11 / macOS</td><td class="ev-odd">受講用PC（OS問わず）</td></tr>
+          <tr><td class="ev-label">IDE</td><td class="ev-even">Visual Studio Code</td><td class="ev-even">コード編集・デバッグ・ターミナル操作</td></tr>
+          <tr><td class="ev-label">SDK</td><td class="ev-odd">.NET 8</td><td class="ev-odd">C#アプリケーション開発・実行</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-even">C# Dev Kit</td><td class="ev-even">C#コード補完・デバッグ・実行支援</td></tr>
+          <tr><td class="ev-label">VSCode拡張機能</td><td class="ev-odd">.NET Install Tool</td><td class="ev-odd">.NET SDKのインストール支援</td></tr>
+          <tr><td class="ev-label">ライブラリ</td><td class="ev-even">Newtonsoft.Json</td><td class="ev-even">JSON操作ライブラリ（第4章で使用）</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
